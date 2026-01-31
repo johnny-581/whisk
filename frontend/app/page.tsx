@@ -1,7 +1,5 @@
-import Image from "next/image";
+import LiveChat from '@/components/LiveChat';
 
 export default function Home() {
-  return (
-    <div>Hihi</div>
-  );
+  return <LiveChat />;
 }
