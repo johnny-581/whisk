@@ -13,3 +13,11 @@ https://ai.google.dev/competition
 ## FigJam Brainstorning
 
 https://www.figma.com/board/aduArXBmgmKPzy6tMLyQNa/Gemini-3-Hackathon?node-id=128-193&t=MXIF1KZeTaXcH1KP-1
+
+# Getting Started
+
+# Run backend
+
+```
+uv run uvicorn main:app --reload
+```
