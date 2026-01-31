@@ -1,8 +1,10 @@
+import json
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from app.services.gemini import client
-from app.schemas import VocabResponse
-from app.services.youtubeAPI import ytt_api, format_fetched_transcript
+from app.schemas import VocabResponse, VocabRequest
+from app.services.youtubeAPI import ytt_api, format_fetched_transcript, extract_video_id
+
 
 
 
@@ -12,9 +14,15 @@ from app.services.youtubeAPI import ytt_api, format_fetched_transcript
 router = APIRouter()
 
 @router.post("/vocab", response_model=VocabResponse)
-def get_vocab(video_url: str):
+async def get_vocab(request: VocabRequest):
 
-    video_id = video_url.split("v=")[1]
+
+
+    try:
+        video_id = extract_video_id(request.video_url)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
     
     transcript = ytt_api.fetch(video_id)
     transcript = format_fetched_transcript(transcript)
@@ -36,4 +44,4 @@ def get_vocab(video_url: str):
             "response_json_schema": VocabResponse.model_json_schema(),
         },  
     )
-    return response
+    return VocabResponse(**response.parsed)
