@@ -8,6 +8,6 @@ dependencies = [
     "dotenv>=0.9.9",
     "fastapi>=0.115.6,<0.128.0",
     "openai>=1.0.0",
-    "pipecat-ai[google,websocket]>=0.0.92",
+    "pipecat-ai[google,websocket]>=0.1.0",
     "uvicorn>=0.40.0",
 ]

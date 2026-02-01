@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-const WEBSOCKET_URL = "ws://localhost:8765/ws";
+const WEBSOCKET_URL = "ws://localhost:8000/ws";
 
 export default function GeminiChat() {
   const {

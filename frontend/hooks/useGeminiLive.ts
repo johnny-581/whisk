@@ -2,7 +2,10 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { PipecatClient } from "@pipecat-ai/client-js";
-import { WebSocketTransport, ProtobufFrameSerializer } from "@pipecat-ai/websocket-transport";
+import {
+  WebSocketTransport,
+  ProtobufFrameSerializer,
+} from "@pipecat-ai/websocket-transport";
 
 export function useGeminiLive(backendUrl: string) {
   const [isConnected, setIsConnected] = useState(false);
@@ -51,7 +54,8 @@ export function useGeminiLive(backendUrl: string) {
       await clientRef.current.connect({ wsUrl: backendUrl });
       setIsMicEnabled(true);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to connect";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to connect";
       setError(errorMessage);
     }
   }, [backendUrl]);

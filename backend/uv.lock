@@ -227,7 +227,7 @@ dependencies = [
     { name = "dotenv" },
     { name = "fastapi" },
     { name = "openai" },
-    { name = "pipecat-ai", extra = ["google", "websocket"] },
+    { name = "pipecat-ai", extra = ["daily", "google", "websocket"] },
     { name = "uvicorn" },
 ]
 
@@ -236,7 +236,7 @@ requires-dist = [
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "fastapi", specifier = ">=0.115.6,<0.128.0" },
     { name = "openai", specifier = ">=1.0.0" },
-    { name = "pipecat-ai", extras = ["google", "websocket"], specifier = ">=0.0.92" },
+    { name = "pipecat-ai", extras = ["google", "websocket", "daily"], specifier = ">=0.0.1" },
     { name = "uvicorn", specifier = ">=0.40.0" },
 ]
 
@@ -435,6 +435,17 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/e9/23/cbb2036e450980f65c6e0a173b73a56ff3bccd8998965dea5cc9ddd424a5/cryptography-46.0.4-cp38-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:93d8291da8d71024379ab2cb0b5c57915300155ad42e07f76bea6ad838d7e59b", size = 4664837, upload-time = "2026-01-28T00:24:17.629Z" },
     { url = "https://files.pythonhosted.org/packages/0a/21/f7433d18fe6d5845329cbdc597e30caf983229c7a245bcf54afecc555938/cryptography-46.0.4-cp38-abi3-win32.whl", hash = "sha256:0563655cb3c6d05fb2afe693340bc050c30f9f34e15763361cf08e94749401fc", size = 3009779, upload-time = "2026-01-28T00:24:20.198Z" },
     { url = "https://files.pythonhosted.org/packages/3a/6a/bd2e7caa2facffedf172a45c1a02e551e6d7d4828658c9a245516a598d94/cryptography-46.0.4-cp38-abi3-win_amd64.whl", hash = "sha256:fa0900b9ef9c49728887d1576fd8d9e7e3ea872fa9b25ef9b64888adc434e976", size = 3466633, upload-time = "2026-01-28T00:24:21.851Z" },
+]
+
+[[package]]
+name = "daily-python"
+version = "0.23.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c7/3b/0f1465833787db21933caf9db0c4e45d10a31f477c2ae08ebe3edf31764d/daily_python-0.23.0-cp37-abi3-macosx_10_15_x86_64.whl", hash = "sha256:74998c9aabeccf8306def27219eb943df5a268f26ba7e25e0a105ced9425591a", size = 13450473, upload-time = "2025-12-18T03:21:50.488Z" },
+    { url = "https://files.pythonhosted.org/packages/b0/ca/7a9b581d411101454855c21559b1c9d9d58b6c527480548bba03e00a5641/daily_python-0.23.0-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:ce80746f5cba434371a9cb9995d8c4ec19d1490bd993b7dfd35356d81bd68425", size = 11988100, upload-time = "2025-12-18T03:21:53.265Z" },
+    { url = "https://files.pythonhosted.org/packages/40/eb/15303b6ae2cdc5c591d6629d162085037697ca519d57751408c66f775991/daily_python-0.23.0-cp37-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:21a59b1730ae047f2335b9fdcf8ebb9fe05c3768dc4239ec955461f3f78476b0", size = 14094021, upload-time = "2025-12-18T03:21:55.606Z" },
+    { url = "https://files.pythonhosted.org/packages/65/b9/f063e4854ba6e4edeea46e082720b7af82fb3cbf27e60efce63dbe34fe6d/daily_python-0.23.0-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:00b22041ef85556cc06262f9b8e39b686bdf37d50219d07542d7a2f9c3d413d4", size = 14616886, upload-time = "2025-12-18T03:21:58.084Z" },
 ]
 
 [[package]]
@@ -1199,6 +1210,9 @@ wheels = [
 ]
 
 [package.optional-dependencies]
+daily = [
+    { name = "daily-python" },
+]
 google = [
     { name = "google-cloud-speech" },
     { name = "google-cloud-texttospeech" },

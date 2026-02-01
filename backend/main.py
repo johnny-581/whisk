@@ -10,6 +10,7 @@ from pipecat.transports.websocket.fastapi import (
     FastAPIWebsocketTransport,
 )
 from pipecat.serializers.protobuf import ProtobufFrameSerializer
+from pipecat.processors.frameworks.rtvi import RTVIProcessor
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,7 +34,8 @@ async def websocket_endpoint(websocket: WebSocket):
         params=FastAPIWebsocketParams(
             audio_out_enabled=True,
             add_wav_header=False,
-            serializer=ProtobufFrameSerializer(use_sidebar=True) 
+            serializer=ProtobufFrameSerializer(),
+            session_timeout=None,  # Disable session timeout to prevent keepalive issues
         )
     )
 
@@ -44,17 +46,27 @@ async def websocket_endpoint(websocket: WebSocket):
         voice_id="Puck",  # Options: Puck, Charon, Kore, Fenrir, Aoede
     )
 
-    # 3. Build the Pipeline
-    # Data flows: Transport Input -> Gemini Live -> Transport Output
+    # 3. Add RTVI Processor for handling RTVI protocol messages
+    rtvi = RTVIProcessor()
+    
+    # Handle client ready event
+    @rtvi.event_handler("on_client_ready")
+    async def on_client_ready(processor):
+        # Mark bot as ready to start processing
+        await processor.set_bot_ready()
+
+    # 4. Build the Pipeline
+    # Data flows: Transport Input -> RTVI -> Gemini Live -> Transport Output
     pipeline = Pipeline(
         [
             transport.input(),   # Receive audio from client
+            rtvi,                # Handle RTVI protocol messages
             llm,                 # Send audio to Gemini, get audio back
             transport.output(),  # Send audio back to client
         ]
     )
 
-    # 4. Run the Task
+    # 5. Run the Task
     task = PipelineTask(pipeline)
     runner = PipelineRunner()
     
