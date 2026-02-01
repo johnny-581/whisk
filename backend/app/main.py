@@ -6,10 +6,11 @@ from app.api.routes import api_router
 load_dotenv()
 app = FastAPI()
 
-port = os.getenv("PORT")
+port = os.getenv(PORT)
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"]
@@ -17,7 +18,7 @@ app.add_middleware(
 
 
 #add router
-app.include_router(api_router, prefix="/api")  # ✅ Use config!
+app.include_router(api_router, prefix="/api")  
 
 @app.get("/")
 def root():
@@ -31,6 +32,6 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "main:app",
-        port=port,  # ✅ Use config!
-        reload=True  # ✅ Use config!
+        port=port,  
+        reload=True  # for dev
     )
