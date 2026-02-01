@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import { ThemeProvider } from "@pipecat-ai/voice-ui-kit";
 
 import type { PipecatBaseChildProps } from "@pipecat-ai/voice-ui-kit";
@@ -13,25 +11,17 @@ import {
 } from "@pipecat-ai/voice-ui-kit";
 
 import { App } from "./components/App";
-import {
-  AVAILABLE_TRANSPORTS,
-  DEFAULT_TRANSPORT,
-  TRANSPORT_CONFIG,
-} from "../config";
-import type { TransportType } from "../config";
+import { DEFAULT_TRANSPORT, TRANSPORT_CONFIG } from "../config";
 
 export default function Home() {
-  const [transportType, setTransportType] =
-    useState<TransportType>(DEFAULT_TRANSPORT);
-
-  const connectParams = TRANSPORT_CONFIG[transportType];
+  const connectParams = TRANSPORT_CONFIG[DEFAULT_TRANSPORT];
 
   return (
     <ThemeProvider defaultTheme="terminal" disableStorage>
       <FullScreenContainer>
         <PipecatAppBase
           connectParams={connectParams}
-          transportType={transportType}
+          transportType={DEFAULT_TRANSPORT}
         >
           {({
             client,
