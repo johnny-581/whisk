@@ -48,9 +48,6 @@ export default function Home() {
                 client={client}
                 handleConnect={handleConnect}
                 handleDisconnect={handleDisconnect}
-                transportType={transportType}
-                onTransportChange={setTransportType}
-                availableTransports={AVAILABLE_TRANSPORTS}
               />
             )
           }

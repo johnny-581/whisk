@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   const botStartUrl =
-    process.env.BOT_START_URL || "http://localhost:7860/start";
+    process.env.BOT_START_URL || "http://localhost:8000/start";
 
   if (!process.env.BOT_START_URL) {
     console.warn(
-      "BOT_START_URL not configured, using default: http://localhost:7860/start"
+      "BOT_START_URL not configured, using default: http://localhost:8000/start",
     );
   }
 
@@ -35,6 +35,8 @@ export async function POST(request: Request) {
 
     const data = await response.json();
 
+    console.log(data);
+
     if (data.error) {
       throw new Error(data.error);
     }
@@ -43,7 +45,7 @@ export async function POST(request: Request) {
   } catch (error) {
     return NextResponse.json(
       { error: `Failed to process connection request: ${error}` },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
