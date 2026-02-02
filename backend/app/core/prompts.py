@@ -1,4 +1,4 @@
-def get_system_messages(target_words: list[str]) -> list[dict]:
+def get_vocab_chatbot_prompt(target_words: list[str]) -> list[dict]:
     """Build initial LLM context with the game host system prompt."""
     return [
         {

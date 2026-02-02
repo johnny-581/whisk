@@ -21,7 +21,7 @@ from pipecat.turns.user_turn_strategies import UserTurnStrategies
 
 from app.core.config import settings
 from app.core.logger import logger
-from app.core.prompt import get_system_messages
+from app.core.prompts import get_vocab_chatbot_prompt
 
 # Load target words from project root
 TARGET_WORDS = ["apple", "banana", "cherry", "date", "elderberry"]
@@ -115,7 +115,7 @@ async def run_bot(room_url: str, token: str) -> None:
 
     llm.register_function("mark_word", mark_word_handler)
 
-    messages = get_system_messages(TARGET_WORDS)
+    messages = get_vocab_chatbot_prompt(TARGET_WORDS)
 
     context = LLMContext(messages)
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(

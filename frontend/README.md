@@ -1,27 +1,14 @@
-# React Implementation
+# Getting Started
 
-Basic implementation using the [Pipecat React SDK](https://docs.pipecat.ai/client/react/introduction).
-
-## Setup
-
-1. Run the server-side bot; see [README](../../server/README).
-
-2. Navigate to the `client/react` directory:
+### Install dependencies
 
 ```bash
-cd client/react
-```
-
-3. Install dependencies:
-
-```bash
+cd frontend
 npm install
 ```
 
-4. Run the client app:
+### Running the App
 
-```
+```bash
 npm run dev
 ```
-
-5. Visit http://localhost:5173 in your browser.
