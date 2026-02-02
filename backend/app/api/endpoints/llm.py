@@ -6,13 +6,12 @@ from app.schemas import VocabResponse, VocabRequest
 from app.services.youtubeAPI import ytt_api, format_fetched_transcript, extract_video_id
 
 
-=
-
 
 router = APIRouter()
 
 
-#request body: video_url
+#request body: video_url: str
+#/api/llm/vocab
 
 @router.post("/vocab", response_model=VocabResponse)
 async def get_vocab(request: VocabRequest):
