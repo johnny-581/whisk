@@ -1,15 +1,8 @@
-import json
-import os
-from pathlib import Path
-
-from dotenv import load_dotenv
-from loguru import logger
-
+"""Gemini Live Chat service for managing voice conversations with AI."""
 from pipecat.audio.turn.smart_turn.local_smart_turn_v3 import LocalSmartTurnAnalyzerV3
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.audio.vad.vad_analyzer import VADParams
 from pipecat.frames.frames import LLMRunFrame
-from pipecat.processors.frameworks.rtvi import RTVIServerMessageFrame
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
@@ -18,26 +11,53 @@ from pipecat.processors.aggregators.llm_response_universal import (
     LLMContextAggregatorPair,
     LLMUserAggregatorParams,
 )
+from pipecat.processors.frameworks.rtvi import RTVIServerMessageFrame
 from pipecat.services.google.gemini_live.llm import GeminiLiveLLMService
 from pipecat.transports.daily.transport import DailyParams, DailyTransport
 from pipecat.turns.user_stop.turn_analyzer_user_turn_stop_strategy import (
     TurnAnalyzerUserTurnStopStrategy,
 )
 from pipecat.turns.user_turn_strategies import UserTurnStrategies
-from pipecat.processors.frame_processor import FrameProcessor, FrameDirection
-from pipecat.frames.frames import Frame
 
-from prompt import get_system_messages
+from app.core.config import settings
+from app.core.logger import logger
+from app.core.prompt import get_system_messages
 
-load_dotenv(override=True)
-
-# Single source of truth: repo-root target-words.json
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-with (_REPO_ROOT / "target-words.json").open() as f:
-    TARGET_WORDS = json.load(f)
+# Load target words from project root
+TARGET_WORDS = ["apple", "banana", "cherry", "date", "elderberry"]
 
 
-async def main(room_url: str, token: str):
+def _create_tools_schema(target_words: list[str]) -> list[dict]:
+    """Create the tools schema for Gemini function calling."""
+    return [{
+        "function_declarations": [{
+            "name": "mark_word",
+            "description": "Call this when the user uses one of the target words in a correct and complete sentence.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "word": {
+                        "type": "string",
+                        "description": "The target word said by the user",
+                        "enum": target_words
+                    }
+                },
+                "required": ["word"]
+            }
+        }]
+    }]
+
+
+async def run_bot(room_url: str, token: str) -> None:
+    """
+    Run the Gemini Live Chat bot in a Daily.co room.
+    
+    Args:
+        room_url: The Daily.co room URL to join
+        token: The authentication token for the room
+    """
+    logger.info(f"Starting bot for room: {room_url}")
+    
     # Initialize state - track remaining words
     remaining_words = list(TARGET_WORDS)
 
@@ -52,39 +72,25 @@ async def main(room_url: str, token: str):
         ),
     )
 
-    # Define Tool with Schema
-    tools = [{
-        "function_declarations": [{
-            "name": "mark_word",
-            "description": "Call this when the user uses one of the target words in a correct andcomplete sentence.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "word": {
-                        "type": "string",
-                        "description": "The target word said by the user",
-                        "enum": TARGET_WORDS 
-                    }
-                },
-                "required": ["word"]
-            }
-        }]
-    }]
+    # Create tools schema
+    tools = _create_tools_schema(TARGET_WORDS)
 
     llm = GeminiLiveLLMService(
-        api_key=os.getenv("GOOGLE_API_KEY"),
-        voice_id="Charon",
+        api_key=settings.GOOGLE_API_KEY,
+        voice_id=settings.GEMINI_VOICE_ID,
         tools=tools
     )
 
-    # Intelligent Tool Handler
+    # Define the tool handler for marking words
     async def mark_word_handler(function_name, tool_call_id, args, llm, context, result_callback):
+        """Handle the mark_word tool call when a target word is detected."""
         word = args.get("word", "").lower()
         
         # Update state
         if word in remaining_words:
             remaining_words.remove(word)
             
+            # Notify frontend about detected word
             await task.queue_frames([RTVIServerMessageFrame(data={
                 "type": "word_detected",
                 "payload": word
@@ -118,7 +124,7 @@ async def main(room_url: str, token: str):
             user_turn_strategies=UserTurnStrategies(
                 stop=[TurnAnalyzerUserTurnStopStrategy(turn_analyzer=LocalSmartTurnAnalyzerV3())]
             ),
-            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
+            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=settings.VAD_STOP_SECS)),
         ),
     )
 
@@ -156,15 +162,18 @@ async def main(room_url: str, token: str):
 
     runner = PipelineRunner(handle_sigint=False)
     await runner.run(task)
+    
+    logger.info("Bot session completed")
 
 
 if __name__ == "__main__":
-    # We expect arguments: python bot.py -u URL -t TOKEN
     import argparse
-    parser = argparse.ArgumentParser(description="Pipecat Bot")
+    import asyncio
+    
+    # We expect arguments: python -m app.services.gemini_live_chat -u URL -t TOKEN
+    parser = argparse.ArgumentParser(description="Gemini Live Chat Bot")
     parser.add_argument("-u", "--url", type=str, required=True, help="Daily Room URL")
     parser.add_argument("-t", "--token", type=str, required=True, help="Daily Room Token")
     args = parser.parse_args()
 
-    import asyncio
-    asyncio.run(main(args.url, args.token))
+    asyncio.run(run_bot(args.url, args.token))

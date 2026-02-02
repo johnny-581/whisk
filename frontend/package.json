@@ -3,9 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "sync-words": "node -e \"const fs=require('fs'),p=require('path');const from=p.join(process.cwd(),'..','target-words.json');const to=p.join(process.cwd(),'src','data','target-words.json');fs.mkdirSync(p.dirname(to),{recursive:true});fs.copyFileSync(from,to);\"",
-    "predev": "npm run sync-words",
-    "prebuild": "npm run sync-words",
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
