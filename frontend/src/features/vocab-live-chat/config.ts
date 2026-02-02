@@ -18,7 +18,7 @@ export const TRANSPORT_LABELS: Record<TransportType, string> = {
 
 export const TRANSPORT_CONFIG: Record<TransportType, APIRequest> = {
   daily: {
-    endpoint: "/api/start",
+    endpoint: "/api/vocab-live-chat/start",
     requestData: {
       createDailyRoom: true,
       dailyRoomProperties: { start_video_off: true },

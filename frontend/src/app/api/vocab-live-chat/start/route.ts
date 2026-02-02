@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const botStartUrl = `${serverBaseUrl}/chat/start`;
+  const botStartUrl = `${serverBaseUrl}/vocab-live-chat/start`;
 
   try {
     // Parse the request body from the client
