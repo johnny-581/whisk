@@ -56,7 +56,7 @@ async def main(room_url: str, token: str):
     tools = [{
         "function_declarations": [{
             "name": "mark_word",
-            "description": "Call this when the user says one of the target words.",
+            "description": "Call this when the user uses one of the target words in a correct andcomplete sentence.",
             "parameters": {
                 "type": "object",
                 "properties": {
