@@ -9,8 +9,9 @@ import {
 import { useRTVIClientEvent } from "@pipecat-ai/client-react";
 import { RTVIEvent } from "@pipecat-ai/client-js";
 
-// Same list as backend
-const TARGET_WORDS = ["gemini", "robot", "future", "voice", "hackathon"];
+import targetWords from "@/data/target-words.json";
+
+const TARGET_WORDS: string[] = targetWords;
 
 interface ServerMessage {
   type: string;

@@ -1,6 +1,6 @@
+import json
 import os
-import re
-import uuid
+from pathlib import Path
 
 from dotenv import load_dotenv
 from loguru import logger
@@ -27,31 +27,14 @@ from pipecat.turns.user_turn_strategies import UserTurnStrategies
 from pipecat.processors.frame_processor import FrameProcessor, FrameDirection
 from pipecat.frames.frames import Frame
 
-# Regex to strip Gemini Live prosody control tokens like <ctrl46> that leak into transcripts
-CTRL_TOKEN_PATTERN = re.compile(r"<ctrl\d+>", re.IGNORECASE)
-
-
-class CtrlTokenFilter(FrameProcessor):
-    """Strips Gemini Live prosody control tokens (e.g. <ctrl46>) from text frames."""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    async def process_frame(self, frame: Frame, direction: FrameDirection):
-        await super().process_frame(frame, direction)
-
-        if hasattr(frame, "text") and isinstance(getattr(frame, "text"), str):
-            cleaned = CTRL_TOKEN_PATTERN.sub("", frame.text)
-            if cleaned != frame.text:
-                frame.text = cleaned
-
-        await self.push_frame(frame, direction)
-
+from prompt import get_system_messages
 
 load_dotenv(override=True)
 
-# Define constant target words
-TARGET_WORDS = ["gemini", "robot", "future", "voice", "hackathon"]
+# Single source of truth: repo-root target-words.json
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+with (_REPO_ROOT / "target-words.json").open() as f:
+    TARGET_WORDS = json.load(f)
 
 
 async def main(room_url: str, token: str):
@@ -126,19 +109,7 @@ async def main(room_url: str, token: str):
 
     llm.register_function("mark_word", mark_word_handler)
 
-    messages = [
-        {
-            "role": "user",
-            "content": (
-                "You are a friendly game host robot. "
-                "Your goal is to have a conversation and get the user to say specific secret words. "
-                f"The secret words are: {', '.join(TARGET_WORDS)}. "
-                "When you hear a secret word, call the 'mark_word' tool immediately. "
-                "Do not tell the user the words directly. Give them hints or steer the topic. "
-                "Start by introducing yourself and the game."
-            ),
-        },
-    ]
+    messages = get_system_messages(TARGET_WORDS)
 
     context = LLMContext(messages)
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
@@ -157,7 +128,6 @@ async def main(room_url: str, token: str):
             transport.input(),
             user_aggregator,
             llm,
-            CtrlTokenFilter(),
             transport.output(),
             assistant_aggregator,
         ]
