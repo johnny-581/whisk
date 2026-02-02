@@ -2,7 +2,7 @@
 
 ### Set Up .env
 
-rename `.env.example` to `.env`.
+copy `.env.example` to a new `.env` file.
 
 ### Install Dependencies
 
