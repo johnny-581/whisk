@@ -6,12 +6,13 @@ from app.schemas import VocabResponse, VocabRequest
 from app.services.youtubeAPI import ytt_api, format_fetched_transcript, extract_video_id
 
 
-
-
-
+=
 
 
 router = APIRouter()
+
+
+#request body: video_url
 
 @router.post("/vocab", response_model=VocabResponse)
 async def get_vocab(request: VocabRequest):
@@ -31,6 +32,7 @@ async def get_vocab(request: VocabRequest):
         model="gemini-3-flash-preview",
         contents=f"""
             You are helping a language learner build vocabulary from spoken content.
+            {video_id} this is the video_id
 
             From the provided transcript, extract vocabulary that is useful for learning:
             - Prioritize **common, concrete nouns** (objects, people, places, concepts)

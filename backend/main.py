@@ -6,7 +6,7 @@ from app.api.routes import api_router
 load_dotenv()
 app = FastAPI()
 
-port = os.getenv(PORT)
+port = int(os.getenv("PORT"))
 
 app.add_middleware(
     CORSMiddleware,
