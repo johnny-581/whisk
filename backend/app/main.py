@@ -100,23 +100,6 @@ async def health_check():
     return {"status": "healthy"}
 
 
-# Backward compatibility endpoint - redirects to new API structure
-# TODO: Remove this endpoint
-@app.post("/start")
-async def start_session_legacy(request: Request):
-    """
-    Legacy endpoint for backward compatibility.
-    Redirects to /chat/start endpoint.
-    
-    This endpoint is deprecated and will be removed in a future version.
-    Please use /chat/start instead.
-    """
-    from app.api.endpoints.chat import start_chat_session
-    
-    logger.warning("Using deprecated /start endpoint. Please migrate to /chat/start")
-    return await start_chat_session(request)
-
-
 if __name__ == "__main__":
     import uvicorn
 
