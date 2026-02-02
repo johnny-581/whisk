@@ -2,7 +2,7 @@
 from pipecat.audio.turn.smart_turn.local_smart_turn_v3 import LocalSmartTurnAnalyzerV3
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.audio.vad.vad_analyzer import VADParams
-from pipecat.frames.frames import LLMRunFrame
+from pipecat.frames.frames import Frame, LLMRunFrame, TextFrame
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
@@ -11,6 +11,7 @@ from pipecat.processors.aggregators.llm_response_universal import (
     LLMContextAggregatorPair,
     LLMUserAggregatorParams,
 )
+from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
 from pipecat.processors.frameworks.rtvi import RTVIServerMessageFrame
 from pipecat.services.google.gemini_live.llm import GeminiLiveLLMService
 from pipecat.transports.daily.transport import DailyParams, DailyTransport
@@ -25,6 +26,28 @@ from app.core.prompts import get_vocab_chatbot_prompt
 
 # Load target words from project root
 TARGET_WORDS = ["apple", "banana", "cherry", "date", "elderberry"]
+
+
+# class ResponseLogger(FrameProcessor):
+#     """Processor to log agent responses as they flow through the pipeline."""
+    
+#     def __init__(self):
+#         super().__init__()
+#         self._current_response = []
+    
+#     async def process_frame(self, frame: Frame, direction: FrameDirection):
+#         """Log text frames from the assistant."""
+#         await super().process_frame(frame, direction)
+        
+#         # Log TextFrames that contain the assistant's speech
+#         if isinstance(frame, TextFrame):
+#             text = frame.text
+#             if text:
+#                 self._current_response.append(text)
+#                 logger.info(f"Agent response chunk: {text}")
+        
+#         # Push the frame downstream
+#         await self.push_frame(frame, direction)
 
 
 def _create_tools_schema(target_words: list[str]) -> list[dict]:
@@ -128,12 +151,15 @@ async def run_bot(room_url: str, token: str) -> None:
         ),
     )
 
+    # Create response logger
+    # response_logger = ResponseLogger()
 
     pipeline = Pipeline(
         [
             transport.input(),
             user_aggregator,
             llm,
+            # response_logger,  # Log responses after LLM
             transport.output(),
             assistant_aggregator,
         ]

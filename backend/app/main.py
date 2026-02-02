@@ -101,6 +101,7 @@ async def health_check():
 
 
 # Backward compatibility endpoint - redirects to new API structure
+# TODO: Remove this endpoint
 @app.post("/start")
 async def start_session_legacy(request: Request):
     """

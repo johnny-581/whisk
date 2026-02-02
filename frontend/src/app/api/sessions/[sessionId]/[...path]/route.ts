@@ -4,8 +4,7 @@ async function handleRequest(
   request: Request,
   { params }: { params: Promise<{ sessionId: string; path: string[] }> }
 ) {
-  const botBaseUrl =
-    process.env.BOT_START_URL?.replace("/start", "") || "http://localhost:7860";
+  const botBaseUrl = process.env.SERVER_BASE_URL || "http://localhost:8000";
   const { sessionId, path } = await params;
   const pathString = path.join("/");
   const targetUrl = `${botBaseUrl}/sessions/${sessionId}/${pathString}`;

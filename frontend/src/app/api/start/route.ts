@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  const botStartUrl =
-    process.env.BOT_START_URL || "http://localhost:8000/start";
+  const serverBaseUrl = process.env.SERVER_BASE_URL || "http://localhost:8000/";
 
-  if (!process.env.BOT_START_URL) {
-    console.warn(
-      "BOT_START_URL not configured, using default: http://localhost:8000/start",
+  if (!serverBaseUrl) {
+    console.log(
+      "SERVER_BASE_URL not configured, using default: http://localhost:8000/"
     );
   }
+
+  const botStartUrl = `${serverBaseUrl}/chat/start`;
 
   try {
     // Parse the request body from the client
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
   } catch (error) {
     return NextResponse.json(
       { error: `Failed to process connection request: ${error}` },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

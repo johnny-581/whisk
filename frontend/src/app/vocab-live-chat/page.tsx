@@ -10,8 +10,8 @@ import {
   SpinLoader,
 } from "@pipecat-ai/voice-ui-kit";
 
-import { App } from "./components/App";
-import { DEFAULT_TRANSPORT, TRANSPORT_CONFIG } from "../config";
+import { VocabLiveChat } from "../../features/vocab-live-chat/VocabLiveChat";
+import { DEFAULT_TRANSPORT, TRANSPORT_CONFIG } from "../../config";
 
 export default function Home() {
   const connectParams = TRANSPORT_CONFIG[DEFAULT_TRANSPORT];
@@ -34,7 +34,7 @@ export default function Home() {
             ) : error ? (
               <ErrorCard>{error}</ErrorCard>
             ) : (
-              <App
+              <VocabLiveChat
                 client={client}
                 handleConnect={handleConnect}
                 handleDisconnect={handleDisconnect}
