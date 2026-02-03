@@ -16,10 +16,36 @@ export function VideoUploadForm() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const extractVideoId = (url: string): string => {
+        let parsed: URL;
+    
+        try {
+            parsed = new URL(url);
+        } 
+        catch {
+            throw new Error("Invalid YouTube URL");
+        }
+    
+        const hostname = parsed.hostname;
+    
+        if (hostname === "www.youtube.com" || hostname === "youtube.com") {
+            const videoId = parsed.searchParams.get("v");
+            if (videoId) return videoId;
+        }
+    
+        if (hostname === "youtu.be") {
+            const videoId = parsed.pathname.replace("/", "");
+            if (videoId) return videoId;
+        }
+    
+        throw new Error("Invalid YouTube URL");
+  };
+  
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+    
     try {
       // TODO: Implement actual video upload/processing
       console.log("Processing video:", url);
@@ -28,7 +54,7 @@ export function VideoUploadForm() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Navigate to a video detail page (using a mock ID)
-      router.push(`/videos/123`);
+      router.push(`/videos/${extractVideoId(url)}`);
     } catch (error) {
       console.error("Error uploading video:", error);
     } finally {
