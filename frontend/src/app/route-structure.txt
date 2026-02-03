@@ -1,0 +1,92 @@
+app/
+├── (dashboard)/                  # 1. Main Application Layout
+│   ├── layout.tsx                # <--- Contains the Left Sidebar & Top Navigation
+│   ├── page.tsx                  # Redirects to the most recent video or a 'Home'
+│   └── videos/
+│       ├── new/
+│       │   └── page.tsx          # "New Video" upload form
+│       └── [videoId]/
+│           └── page.tsx          # <--- The Page shown in your screenshot
+│
+├── (conversation)/               # 2. Full Screen Practice Layout
+│   ├── layout.tsx                # <--- Minimal layout (no sidebar, just chat UI context)
+│   └── conversations/
+│       ├── [conversationId]/
+│       │   └── page.tsx          # <--- The active AI Chat Interface
+│       └── setup/                # (Optional) Page to select multiple videos before starting
+│           └── page.tsx    
+├── (onboarding)/                 # <--- NEW GROUP
+│   ├── layout.tsx                # Clean layout (maybe just a centered logo)
+│   └── onboarding/
+│       └── page.tsx              # Handles the multi-step wizard shown in your screenshots
+└── layout.tsx                    # Root HTML/Body setup
+
+
+
+
+For a smooth onboarding experience like the one in your screenshots, I recommend using a Single URL (/setup) with internal state.
+You could use different URLs (e.g., /setup/step-1, /setup/step-2), but passing the data (like the years studied) from page to page becomes annoying (you'd need Redux, Context, or URL parameters).
+Here is the best way to architect this in Next.js using the "Funnel Pattern."
+
+Recommended Structure: Single Page, Swappable Components
+Keep the user on app/(onboarding)/setup/page.tsx. This makes the transitions instant (no loading spinners between questions) and keeps the form data in one place.
+
+1. The Container Component (page.tsx)
+This file acts as the "Brain." It holds the data and decides which step to show.
+
+code
+Tsx
+// app/(onboarding)/setup/page.tsx
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import WelcomeStep from './_components/WelcomeStep';
+import HistoryStep from './_components/HistoryStep';
+import ProcessingStep from './_components/ProcessingStep';
+
+export default function OnboardingWizard() {
+  const router = useRouter();
+  const [step, setStep] = useState(1);
+  
+  // Store all onboarding data in one state object
+  const [formData, setFormData] = useState({
+    proficiencyQuiz: false,
+    ankiDeck: null,
+    yearsStudied: '',
+  });
+
+  // Function to update data and move forward
+  const handleNext = (data: any) => {
+    setFormData((prev) => ({ ...prev, ...data }));
+    setStep((prev) => prev + 1);
+  };
+
+  // Final step logic
+  const handleComplete = async () => {
+    // 1. Save formData to your database via Server Action or API
+    // await saveUserProfile(formData);
+    
+    // 2. Redirect to the practice route
+    router.push('/practice/new-assessment'); 
+  };
+
+  return (
+    <div className="w-full max-w-xl mx-auto bg-white p-8 rounded-xl shadow-2xl text-black">
+      {/* Step 1: Welcome */}
+      {step === 1 && (
+        <WelcomeStep onNext={handleNext} />
+      )}
+
+      {/* Step 2: History (The radio buttons) */}
+      {step === 2 && (
+        <HistoryStep onNext={handleNext} />
+      )}
+
+      {/* Step 3: Processing (The animation) */}
+      {step === 3 && (
+        <ProcessingStep onComplete={handleComplete} />
+      )}
+    </div>
+  );
+}

@@ -13,7 +13,11 @@ import { VocabLiveChatContent } from "./components/VocabLiveChatContent";
 import { DEFAULT_TRANSPORT, TRANSPORT_CONFIG } from "./config";
 
 // Main Feature Component with Providers
-export const VocabLiveChat = () => {
+interface VocabLiveChatProps {
+  conversationId?: string;
+}
+
+export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
   const connectParams = TRANSPORT_CONFIG[DEFAULT_TRANSPORT];
 
   return (
