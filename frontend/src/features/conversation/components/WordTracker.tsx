@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-
 interface Word {
   word: string;
   active: boolean;
@@ -11,22 +9,27 @@ interface WordTrackerProps {
 
 export const WordTracker = ({ words }: WordTrackerProps) => {
   return (
-    <div className="flex flex-wrap justify-center gap-3 p-4 bg-black-900">
-      {words.map(({ word, active }) => (
-        <Button
-          key={word}
-          variant="outline"
-          size="sm"
-          disabled
-          className={`${
-            active
-              ? "bg-white-900 text-white border-slate-700"
-              : "bg-white-200/50 text-slate-500 line-through border-slate-800"
-          }`}
-        >
-          {word}
-        </Button>
-      ))}
+    <div className="rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm">
+      <div className="text-base font-semibold text-slate-900">Vocabs</div>
+      <div className="mt-4 flex flex-col gap-3">
+        {words.map(({ word, active }) => (
+          <label
+            key={word}
+            className="flex items-center gap-3 text-sm text-slate-700"
+          >
+            <input
+              type="checkbox"
+              className="h-4 w-4"
+              checked={!active}
+              disabled
+              readOnly
+            />
+            <span className={active ? "" : "line-through text-slate-400"}>
+              {word}
+            </span>
+          </label>
+        ))}
+      </div>
     </div>
   );
 };

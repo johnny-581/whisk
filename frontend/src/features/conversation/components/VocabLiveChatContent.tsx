@@ -11,15 +11,6 @@ import { CustomConversationPanel } from "./CustomConversationPanel";
 import { ConnectionButton } from "./ConnectionButton";
 import { WordTracker } from "./WordTracker";
 
-// Constants
-const TARGET_WORDS: string[] = [
-  "apple",
-  "banana",
-  "cherry",
-  "date",
-  "elderberry",
-];
-
 // Types
 interface ServerMessage {
   type: string;
@@ -31,15 +22,20 @@ interface Word {
   active: boolean;
 }
 
+interface VocabLiveChatContentProps extends PipecatBaseChildProps {
+  initialWords: string[];
+}
+
 // Content Component (separated for cleaner logic)
 export const VocabLiveChatContent = ({
   client,
   handleConnect,
   handleDisconnect,
-}: PipecatBaseChildProps) => {
+  initialWords,
+}: VocabLiveChatContentProps) => {
   // State Management
-  const [words, setWords] = useState<Word[]>(
-    TARGET_WORDS.map((w) => ({ word: w, active: true }))
+  const [words, setWords] = useState<Word[]>(() =>
+    initialWords.map((w) => ({ word: w, active: true }))
   );
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -49,11 +45,15 @@ export const VocabLiveChatContent = ({
     client?.initDevices();
   }, [client]);
 
+  useEffect(() => {
+    setWords(initialWords.map((w) => ({ word: w, active: true })));
+  }, [initialWords]);
+
   // Event Handlers
   const handleMessage = useCallback((message: ServerMessage) => {
     if (message.type === "word_detected" && message.payload) {
       const detectedWord = message.payload;
-      setWords((prev) =>
+      setWords((prev: Word[]) =>
         prev.map((w) =>
           w.word.toLowerCase() === detectedWord.toLowerCase()
             ? { ...w, active: false }
@@ -87,29 +87,36 @@ export const VocabLiveChatContent = ({
 
   // Render
   return (
-    <div className="flex flex-col w-full h-full">
-      {/* Header Controls */}
-      <header className="flex items-center justify-between gap-4 p-4">
-        <div /> {/* Spacer for layout balance */}
-        <div className="flex items-center gap-4">
-          <UserAudioControl size="lg" />
-          <ConnectionButton
-            isConnected={isConnected}
-            isConnecting={isConnecting}
-            onClick={handleButtonClick}
-          />
-        </div>
-      </header>
+    <div className="relative min-h-screen w-full overflow-hidden">
+      <div className="mx-auto flex w-full max-w-6xl gap-6 px-6 py-6">
+        <aside className="w-60 shrink-0">
+          <WordTracker words={words} />
+        </aside>
 
-      {/* Word Tracker / Scoreboard */}
-      <WordTracker words={words} />
+        <section className="flex min-h-[70vh] flex-1 flex-col">
+          <div className="flex justify-end">
+            <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-sm">
+              <div className="flex items-center justify-end gap-3">
+                <UserAudioControl size="lg" />
+                <ConnectionButton
+                  isConnected={isConnected}
+                  isConnecting={isConnecting}
+                  onClick={handleButtonClick}
+                />
+              </div>
+              <div className="mt-4 h-[320px] overflow-hidden">
+                <CustomConversationPanel />
+              </div>
+            </div>
+          </div>
 
-      {/* Main Content Area */}
-      <main className="flex-1 overflow-hidden px-4 py-4 flex gap-4">
-        <div className="flex-1 overflow-hidden">
-          <CustomConversationPanel />
-        </div>
-      </main>
+          <div className="mt-auto flex w-full justify-center pt-6">
+            <div className="flex h-12 w-full max-w-3xl items-center justify-center rounded-full border border-slate-200 bg-white/70 px-4 shadow-sm">
+              <UserAudioControl size="lg" />
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 };
