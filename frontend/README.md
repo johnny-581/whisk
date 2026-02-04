@@ -16,5 +16,3 @@ npm install
 ```bash
 npm run dev
 ```
-
-Then navigate to http://localhost:3000/vocab-live-chat or http://localhost:3000/vocab-extraction
