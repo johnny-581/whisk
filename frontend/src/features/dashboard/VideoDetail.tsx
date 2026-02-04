@@ -10,13 +10,57 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { WordCard } from "@/components/ui/WordCard";
 
 interface VideoDetailProps {
   videoId: string;
 }
 
+interface Word {
+  word: string;
+  start_time: string;
+}
+
 export function VideoDetail({ videoId }: VideoDetailProps) {
   const router = useRouter();
+
+  const [title, setTitle] = useState("");
+  const [duration, setDuration] = useState("");
+  const [words, setWords] = useState<Word[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVideoInfo = async () => {
+      try {
+        setLoading(true);
+
+        const res = await fetch("/api/vocab-extract", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ video_id: videoId }),
+        });
+
+        if (!res.ok) {
+          throw new Error(await res.text());
+        }
+
+        const data = await res.json();
+
+        setTitle(data.title ?? "Untitled video");
+        setDuration(data.duration ?? "");
+        setWords(data.vocab ?? []);
+      } catch (error) {
+        console.error("Failed to fetch video info:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVideoInfo();
+  }, [videoId]);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -24,49 +68,58 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
         ← Back to Dashboard
       </Button>
 
-      <div className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Video {videoId}</CardTitle>
-            <CardDescription>
-              Video details and extracted vocabulary
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h3 className="font-semibold mb-2">Video Information</h3>
+      <Card>
+        <CardHeader>
+          <CardTitle>{loading ? "Loading…" : title}</CardTitle>
+          <CardDescription>
+            Video details and extracted vocabulary
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          {/* Video Info */}
+          <div>
+            <h3 className="font-semibold mb-2">Video Information</h3>
+            <p className="text-sm text-muted-foreground">
+              Put summary here
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Duration: {duration || "—"}
+            </p>
+          </div>
+
+          {/* Vocabulary */}
+          <div>
+            <h3 className="font-semibold mb-2">Extracted Vocabulary</h3>
+
+            {loading ? (
               <p className="text-sm text-muted-foreground">
-                Title: Sample Video
+                Extracting vocabulary…
               </p>
-              <p className="text-sm text-muted-foreground">Duration: 10:30</p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">Extracted Vocabulary</h3>
+            ) : words.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No vocabulary found.
+              </p>
+            ) : (
               <div className="space-y-2">
-                <div className="p-2 border rounded">
-                  <p className="font-medium">Word 1</p>
-                  <p className="text-sm text-muted-foreground">
-                    Definition and context...
-                  </p>
-                </div>
-                <div className="p-2 border rounded">
-                  <p className="font-medium">Word 2</p>
-                  <p className="text-sm text-muted-foreground">
-                    Definition and context...
-                  </p>
-                </div>
+                {words.map((w, idx) => (
+                  <WordCard
+                    key={idx}
+                    word={w.word}
+                    start_time={w.start_time}
+                  />
+                ))}
               </div>
-            </div>
+            )}
+          </div>
 
-            <Button asChild className="w-full">
-              <Link href={`/conversations/${videoId}`}>
-                Practice with this Video
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+          <Button asChild className="w-full">
+            <Link href={`/conversations/${videoId}`}>
+              Practice with this Video
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }

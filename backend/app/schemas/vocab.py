@@ -10,8 +10,10 @@ class TimestampedWord(BaseModel):
     start_time: str
 
 class VocabRequest(BaseGeminiRequest):
-    video_url: str
+    video_id: str
 
 class VocabResponse(BaseModel):
     video_id: str
     vocab: list[TimestampedWord]
+    title: str
+    duration: str
