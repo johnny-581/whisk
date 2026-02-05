@@ -12,28 +12,22 @@ client = genai.Client(api_key=settings.GOOGLE_API_KEY)
 
 #request body: video_url: str
 @router.post("", response_model=VocabResponse)
-async def get_vocab(request: VocabRequest):
-    # try:
-    #     video_id = extract_video_id(request.video_url)
-    # except ValueError as e:
-    #     raise HTTPException(status_code=400, detail=str(e))
+async def video_analysis(request: VocabRequest):
 
-    
     transcript = ytt_api.fetch(request.video_id)
     transcript = format_fetched_transcript(transcript)
     
     response = client.models.generate_content(
         model="gemini-3-flash-preview",
         contents=f"""
-            You are helping a japanese learner build vocabulary from english spoken content.
-            {request.video_id} this is the video_id
+            You are helping a Japanese learner build vocabulary from English spoken content.
 
-            Given the video_id provide the title of the video and duration.
+            Given the video_id: {request.video_id}, provide the video title, tags, and duration.
 
-            From the provided transcript, extract vocabulary that is useful for learning:
-            - Prioritize **common, concrete nouns** (objects, people, places, concepts)
-            - Prioritize **high-frequency verbs** (actions and states)
-            - Include the **timestamp** (mm:ss) when it is first clearly spoken
+            From the transcript, extract vocabulary that corresponds to Japanese words at approximately JLPT N{request.user_level} level:
+            - Prioritize common, concrete nouns (objects, people, places, concepts)
+            - Prioritize high-frequency verbs (actions and states)
+            - Include the timestamp (mm:ss) when each word is spoken
 
 
             {transcript}
