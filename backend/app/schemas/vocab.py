@@ -7,7 +7,9 @@ class BaseGeminiRequest(BaseModel):
 
 class TimestampedWord(BaseModel):
     word: str
+    definition: str
     start_time: str
+    japanese_translation: str
 
 class VocabRequest(BaseGeminiRequest):
     video_id: str

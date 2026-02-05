@@ -25,7 +25,7 @@ async def get_vocab(request: VocabRequest):
     response = client.models.generate_content(
         model="gemini-3-flash-preview",
         contents=f"""
-            You are helping a language learner build vocabulary from spoken content.
+            You are helping a japanese learner build vocabulary from english spoken content.
             {request.video_id} this is the video_id
 
             Given the video_id provide the title of the video and duration.
