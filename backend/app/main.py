@@ -10,6 +10,7 @@ from app.core.config import settings
 from app.core.exceptions import AppException
 from app.core.logger import logger
 from app.core.middleware import LoggingMiddleware
+from app.db import get_connection, init_schema
 
 
 @asynccontextmanager
@@ -23,7 +24,15 @@ async def lifespan(app: FastAPI):
     except ValueError as e:
         logger.error(f"Configuration validation failed: {e}")
         raise
-    
+
+    # Ensure database schema exists
+    conn = get_connection()
+    try:
+        init_schema(conn)
+        logger.info("Database schema initialized")
+    finally:
+        conn.close()
+
     yield
     
     # Shutdown
