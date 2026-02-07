@@ -31,6 +31,7 @@ class Video(BaseModel):
 class VideoSummary(BaseModel):
     """Summary response for listing videos (sidebar)"""
     id: str  # internal UUID
+    video_id: str
     title: str
     tags: list[str]
 
