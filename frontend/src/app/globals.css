@@ -2,10 +2,20 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@theme {
+  --color-mint-50: #f7fcfa;
+  --color-mint-100: #d5f0e1;
+  --color-mint-400: #89c9a6;
+  --color-mint-800: #1d4d3f;
+  --color-neutral-400: #62736c;
+  --color-neutral-700: #3d4d46;
+  --color-neutral-900: #1a2421;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-/* This tells Tailwind to use the Reddit Sans variable by default */
+  /* This tells Tailwind to use the Reddit Sans variable by default */
   --font-sans: var(--font-reddit-sans), ui-sans-serif, system-ui;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -49,8 +59,8 @@
 
 :root {
   --radius: 0.625rem;
-  --background: #F7FCFA; /* Your specific emerald tint */
-  --foreground: #1A2421;
+  --background: #f7fcfa; /* Your specific emerald tint */
+  --foreground: #1a2421;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -79,7 +89,11 @@
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: oklch(0.556 0 0);
+
+  /* Custom component variables */
+  --button-radius: 0.5rem;
+  --card-radius: 0.75rem;
 }
 
 .dark {

@@ -53,26 +53,21 @@ export default function DashboardLayout({
           </Link>
         </div>
 
-        {/* Actions */}
-        <div className="px-4 space-y-3">
-          <Button
-            asChild
-            className="w-full rounded-xl h-11 font-bold bg-emerald-800 hover:bg-emerald-900 text-white"
-          >
-            <Link href="/videos/new" className="flex items-center justify-center gap-2">
+        <div className="flex-1 flex flex-col p-4 space-y-4">
+          <Link href="/videos/new">
+            <Button className="w-full rounded-xl h-11 font-bold bg-emerald-800 hover:bg-emerald-900 text-white">
               <span className="text-lg leading-none">+</span>
               New video
-            </Link>
-          </Button>
-
-          <Button
-            asChild
-            variant="outline"
-            className="w-full border-emerald-100 text-emerald-900 hover:bg-emerald-50 rounded-xl h-11 font-bold"
-          >
-            <Link href="/conversations/123">Conversations (demo)</Link>
-          </Button>
-        </div>
+            </Button>
+          </Link>
+          <Link href="/conversations/123">
+            <Button
+              variant="secondary"
+              className="w-full border-emerald-100 text-emerald-900 hover:bg-emerald-50 rounded-xl h-11 font-bold"
+            >
+              Conversations (for demo)
+            </Button>
+          </Link>
 
         {/* Video list */}
         <div className="flex-1 overflow-y-auto px-4 mt-6">

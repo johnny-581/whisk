@@ -2,57 +2,51 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 
 export function DashboardContent() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <Button asChild>
-          <Link href="/videos/new">Upload New Video</Link>
-        </Button>
+        <Link href="/videos/new">
+          <Button>Upload New Video</Button>
+        </Link>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
-          <CardHeader>
-            <CardTitle>Recent Videos</CardTitle>
-            <CardDescription>Your latest vocabulary videos</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Recent Videos</h3>
+            <p className="text-sm text-neutral-600">
+              Your latest vocabulary videos
+            </p>
+            <p className="text-sm text-neutral-500">
               No videos yet. Upload your first video to get started!
             </p>
-          </CardContent>
+          </div>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Practice Sessions</CardTitle>
-            <CardDescription>Continue your learning</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild variant="outline" className="w-full">
-              <Link href="/conversations/new">Start Practice</Link>
-            </Button>
-          </CardContent>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Practice Sessions</h3>
+              <p className="text-sm text-neutral-600">Continue your learning</p>
+            </div>
+            <Link href="/conversations/new" className="block">
+              <Button variant="secondary" className="w-full">
+                Start Practice
+              </Button>
+            </Link>
+          </div>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Progress</CardTitle>
-            <CardDescription>Your vocabulary journey</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">0 words learned</p>
-          </CardContent>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Progress</h3>
+            <p className="text-sm text-neutral-600">Your vocabulary journey</p>
+            <p className="text-sm text-neutral-500">0 words learned</p>
+          </div>
         </Card>
       </div>
     </div>

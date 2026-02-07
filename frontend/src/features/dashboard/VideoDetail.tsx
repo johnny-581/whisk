@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { Tag } from "@/components/ui/tag";
 import { useEffect, useState } from "react";
 
 interface VideoDetailProps {
@@ -116,7 +117,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
     return (
       <div className="space-y-4">
         <p className="text-sm text-red-600">{error}</p>
-        <Button variant="outline" onClick={() => window.history.back()}>
+        <Button variant="secondary" onClick={() => window.history.back()}>
           ← Back
         </Button>
       </div>
@@ -141,29 +142,18 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
 
         <div className="flex flex-wrap items-center gap-2">
           {tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800"
-            >
-              {tag}
-            </span>
+            <Tag key={tag}>{tag}</Tag>
           ))}
 
-          <Button
-            asChild
-            variant="outline"
-            className="ml-auto rounded-xl border-emerald-600 text-emerald-700 hover:bg-emerald-50"
-          >
-            <Link
-              href={`/conversations/${videoId}`}
-              className="flex items-center gap-2"
+          <Link href={`/conversations/${videoId}`} className="ml-auto">
+            <Button
+              variant="secondary"
+              className="rounded-xl border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+              icon={EqualizerIcon}
             >
-              <span className="inline-flex size-4 items-center justify-center">
-                <EqualizerIcon />
-              </span>
               AI Practice
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         </div>
       </header>
 
@@ -211,23 +201,21 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
         </div>
 
         {/* VOCAB CARD */}
-        <Card className="rounded-xl h-full flex flex-col">
-          <CardHeader className="pb-2 shrink-0">
-            <CardTitle className="text-base">Vocab</CardTitle>
-          </CardHeader>
+        <Card className="rounded-xl h-full flex flex-col p-0">
+          <div className="pb-2 shrink-0 p-6">
+            <h3 className="text-base font-semibold">Vocab</h3>
+          </div>
 
-          <CardContent className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
             {loading ? (
-              <p className="text-sm text-muted-foreground">
-                Extracting vocabulary…
-              </p>
+              <p className="text-sm text-neutral-600">Extracting vocabulary…</p>
             ) : vocab.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No vocabulary yet.</p>
+              <p className="text-sm text-neutral-600">No vocabulary yet.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 bg-white z-10">
-                    <tr className="border-b border-emerald-100 text-left text-muted-foreground font-medium">
+                    <tr className="border-b border-emerald-100 text-left text-neutral-600 font-medium">
                       <th className="pb-2 pr-4">Vocab</th>
                       <th className="pb-2 pr-4">Pronunciation</th>
                       <th className="pb-2">Translation</th>
@@ -240,10 +228,10 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
                         <td className="py-2 pr-4 font-medium text-[#1A2421]">
                           {v.japanese_vocab}
                         </td>
-                        <td className="py-2 pr-4 text-muted-foreground">
+                        <td className="py-2 pr-4 text-neutral-600">
                           {v.pronunciation}
                         </td>
-                        <td className="py-2 text-muted-foreground">
+                        <td className="py-2 text-neutral-600">
                           {v.english_translation}
                         </td>
                       </tr>
@@ -252,7 +240,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
                 </table>
               </div>
             )}
-          </CardContent>
+          </div>
         </Card>
       </div>
 
@@ -263,11 +251,8 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
 
       {/* Conversations */}
       <Card className="rounded-xl">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Your conversations</CardTitle>
-        </CardHeader>
-
-        <CardContent>
+        <div className="space-y-4">
+          <h3 className="text-base font-semibold">Your conversations</h3>
           <ul className="divide-y divide-emerald-50">
             {MOCK_CONVERSATIONS.map((c) => (
               <li key={c.id}>
@@ -276,14 +261,14 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
                   className="flex items-center justify-between py-3 text-sm text-[#1A2421] hover:text-emerald-700"
                 >
                   <span>{c.label}</span>
-                  <span className="text-muted-foreground">
+                  <span className="text-neutral-600">
                     <ArrowRightIcon />
                   </span>
                 </Link>
               </li>
             ))}
           </ul>
-        </CardContent>
+        </div>
       </Card>
     </div>
   );
@@ -293,7 +278,16 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
 
 function EqualizerIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <line x1="4" y1="20" x2="4" y2="14" />
       <line x1="4" y1="10" x2="4" y2="4" />
       <line x1="12" y1="20" x2="12" y2="12" />
@@ -317,7 +311,16 @@ function YoutubeIcon() {
 
 function ShareIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
       <polyline points="16 6 12 2 8 6" />
       <line x1="12" y1="2" x2="12" y2="15" />
@@ -327,7 +330,16 @@ function ShareIcon() {
 
 function ArrowRightIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <line x1="5" y1="12" x2="19" y2="12" />
       <polyline points="12 5 19 12 12 19" />
     </svg>
