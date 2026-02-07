@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Tag } from "@/components/ui/tag";
 import { useEffect, useState } from "react";
 
 interface VideoDetailProps {
@@ -112,12 +113,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
 
         <div className="flex flex-wrap items-center gap-2">
           {tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800"
-            >
-              {tag}
-            </span>
+            <Tag key={tag}>{tag}</Tag>
           ))}
 
           <Link href={`/conversations/${videoId}`} className="ml-auto">
