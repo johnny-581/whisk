@@ -48,6 +48,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
       try {
         setLoading(true);
         setError(null);
+
         const res = await fetch("/api/vocab-extract", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -63,6 +64,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
         }
 
         const data = await res.json();
+
         setInfo({
           title: data.title ?? "Untitled video",
           video_url: data.video_url ?? `${YOUTUBE_WATCH_URL}${videoId}`,
@@ -100,12 +102,14 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header: title, URL, tags, AI Practice */}
+      {/* Header */}
       <header className="space-y-2">
         <h1 className="text-xl font-semibold text-[#1A2421] leading-tight">
           {loading ? "Loading…" : title || "Untitled video"}
         </h1>
+
         <p className="text-sm text-muted-foreground break-all">{videoUrl}</p>
+
         <div className="flex flex-wrap items-center gap-2">
           {tags.map((tag) => (
             <span
@@ -115,6 +119,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
               {tag}
             </span>
           ))}
+
           <Button
             asChild
             variant="outline"
@@ -133,8 +138,9 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
         </div>
       </header>
 
-      {/* Main: video embed + vocab card */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Main: video + vocab */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        {/* VIDEO */}
         <div className="lg:col-span-2 space-y-4">
           <div className="relative w-full rounded-xl overflow-hidden bg-black aspect-video">
             {loading ? (
@@ -150,6 +156,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
+
                 <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
                   <a
                     href={videoUrl}
@@ -160,6 +167,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
                     <YoutubeIcon />
                     Watch on Youtube
                   </a>
+
                   <button
                     type="button"
                     className="rounded bg-black/60 p-1.5 text-white hover:bg-black/80"
@@ -173,11 +181,13 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
           </div>
         </div>
 
-        <Card className="h-fit rounded-xl">
-          <CardHeader className="pb-2">
+        {/* VOCAB CARD */}
+        <Card className="rounded-xl h-full flex flex-col">
+          <CardHeader className="pb-2 shrink-0">
             <CardTitle className="text-base">Vocab</CardTitle>
           </CardHeader>
-          <CardContent>
+
+          <CardContent className="flex-1 overflow-y-auto">
             {loading ? (
               <p className="text-sm text-muted-foreground">
                 Extracting vocabulary…
@@ -187,13 +197,14 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead>
+                  <thead className="sticky top-0 bg-white z-10">
                     <tr className="border-b border-emerald-100 text-left text-muted-foreground font-medium">
                       <th className="pb-2 pr-4">Vocab</th>
                       <th className="pb-2 pr-4">Pronunciation</th>
                       <th className="pb-2">Translation</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {vocab.map((v, idx) => (
                       <tr key={idx} className="border-b border-emerald-50/80">
@@ -216,16 +227,17 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
         </Card>
       </div>
 
-      {/* Summary if present */}
+      {/* Summary */}
       {summary && (
         <p className="text-sm text-muted-foreground max-w-2xl">{summary}</p>
       )}
 
-      {/* Your conversations */}
+      {/* Conversations */}
       <Card className="rounded-xl">
         <CardHeader className="pb-2">
           <CardTitle className="text-base">Your conversations</CardTitle>
         </CardHeader>
+
         <CardContent>
           <ul className="divide-y divide-emerald-50">
             {MOCK_CONVERSATIONS.map((c) => (
@@ -247,6 +259,8 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
     </div>
   );
 }
+
+/* Icons unchanged below */
 
 function EqualizerIcon() {
   return (
