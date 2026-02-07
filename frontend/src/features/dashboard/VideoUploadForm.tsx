@@ -53,7 +53,6 @@ export function VideoUploadForm() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Navigate to a video detail page (using a mock ID)
       router.push(`/videos/${extractVideoId(url)}`);
     } catch (error) {
       console.error("Error uploading video:", error);

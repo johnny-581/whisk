@@ -7,16 +7,16 @@ export async function POST(req: Request) {
     // TODO: implement database
 
     const body = await req.json();
-    const { video_id, user_level} = body as { video_id: string, user_level: number};
+    const { video_url, user_level} = body as { video_url: string, user_level: number};
 
-    if (!video_id) {
+    if (!video_url) {
       return NextResponse.json(
-        { error: "video_id is required" },
+        { error: "video_url is required" },
         { status: 400 }
       );
     }
     console.log(body)
-    const result = await fetch(`${BASE_URL}/vocab-extract`, {
+    const result = await fetch(`${BASE_URL}/video_analysis`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
