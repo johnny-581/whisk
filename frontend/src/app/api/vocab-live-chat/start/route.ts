@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 
+const trimTrailingSlash = (url: string) => url.replace(/\/+$/, "");
+
 export async function POST(request: Request) {
-  const serverBaseUrl = process.env.SERVER_BASE_URL || "http://localhost:8000/";
+  const configuredBase =
+    process.env.SERVER_BASE_URL || "http://localhost:8000/";
+  const serverBaseUrl = trimTrailingSlash(configuredBase);
 
   if (!serverBaseUrl) {
     console.log(
@@ -30,16 +34,24 @@ export async function POST(request: Request) {
       body: JSON.stringify(requestData),
     });
 
+    const rawText = await response.text();
     if (!response.ok) {
-      throw new Error(`Failed to connect to Pipecat: ${response.statusText}`);
+      throw new Error(
+        `Failed to connect to Pipecat: ${response.status} ${response.statusText} ${rawText}`
+      );
     }
 
-    const data = await response.json();
+    let data: unknown;
+    try {
+      data = rawText ? JSON.parse(rawText) : {};
+    } catch (parseError) {
+      throw new Error(`Invalid JSON from backend: ${rawText}`);
+    }
 
     console.log(data);
 
-    if (data.error) {
-      throw new Error(data.error);
+    if (typeof data === "object" && data && "error" in data) {
+      throw new Error((data as { error: string }).error);
     }
 
     return NextResponse.json(data);

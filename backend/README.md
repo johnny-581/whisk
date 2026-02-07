@@ -20,6 +20,8 @@ cd backend
 uv sync
 ```
 
+**Windows users:** Install [uv](https://docs.astral.sh/uv/getting-started/installation/) first (e.g. `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`). The backend depends on `daily-python`, which only provides wheels for **Linux and macOS**. To run the backend on Windows, use [WSL](https://docs.microsoft.com/en-us/windows/wsl/): open the project in WSL and run `uv sync` and `uv run python run.py` from there.
+
 ## Running the Application
 
 ### Development Server
@@ -56,14 +58,3 @@ pyright
 1. Create endpoint function in `app/api/endpoints/`
 2. Register router in `app/api/routes.py`
 3. Add any new services in `app/services/`
-
-## Testing the video_analysis endpoint
-
-```
-curl -X POST http://localhost:8000/vocab-extract \
-     -H "Content-Type: application/json" \
-     -d '{
-           "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-           "user_level": 3
-         }'
-```

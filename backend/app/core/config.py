@@ -44,6 +44,7 @@ class Settings:
     
     # Paths
     PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent.parent.parent
+    DATABASE_PATH: Path = PROJECT_ROOT / "backend" / "data" / "vocab.db"
     
     @classmethod
     def validate(cls) -> None:

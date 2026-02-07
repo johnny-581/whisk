@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.schemas.video_schema import VideoAnalysisResponse, VideoAnalysisRequest
+from app.schemas.video import Video, VideoAnalysisRequest
 from app.services.youtube import ytt_api, format_fetched_transcript, extract_video_id
 from google import genai
 from app.core.config import settings
@@ -12,7 +12,7 @@ client = genai.Client(api_key=settings.GOOGLE_API_KEY)
 
 
 #request body: video_url: str
-@router.post("", response_model=VideoAnalysisResponse)
+@router.post("", response_model=Video)
 async def video_analysis(request: VideoAnalysisRequest):
     print(f"Analyzing video: {request.video_url}")
 
@@ -27,7 +27,7 @@ async def video_analysis(request: VideoAnalysisRequest):
         contents=get_video_analysis_prompt(transcript, request.user_level),
         config={
             "response_mime_type": "application/json",
-            "response_json_schema": VideoAnalysisResponse.model_json_schema(),
+            "response_json_schema": Video.model_json_schema(),
         },
     )
-    return VideoAnalysisResponse(**response.parsed)
+    return Video(**response.parsed)

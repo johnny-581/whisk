@@ -38,6 +38,7 @@ async def create_daily_room():
             
             # FEATURES
             "enable_chat": True,          # Useful if you want text fallbacks
+            "enable_transcription": True, # Enable ASR for user transcripts
             "start_video_off": False,     # Let user choose their camera state
             "start_audio_off": False,     # Let user choose their mic state
         }
