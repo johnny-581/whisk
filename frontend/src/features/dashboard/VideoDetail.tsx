@@ -96,11 +96,11 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
         });
   
         // 3️⃣ (Optional but recommended) Save to DB
-        // await fetch("/api/videos", {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify(data),
-        // });
+        await fetch("/api/videos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
   
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
