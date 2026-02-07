@@ -49,14 +49,14 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
       try {
         setLoading(true);
         setError(null);
-  
+
         // 1️⃣ Try DB first
-        console.log("video id:", videoId)
+        console.log("video id:", videoId);
         const dbRes = await fetch(`/api/db/${videoId}`);
-  
+
         if (dbRes.ok) {
           const dbData = await dbRes.json();
-  
+
           setInfo({
             title: dbData.title ?? "Untitled video",
             video_url: dbData.video_url ?? `${YOUTUBE_WATCH_URL}${videoId}`,
@@ -65,10 +65,10 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
             summary: dbData.summary ?? "",
             vocab: Array.isArray(dbData.vocab) ? dbData.vocab : [],
           });
-  
+
           return; // ✅ STOP — skip analysis
         }
-  
+
         // 2️⃣ Not in DB → run analysis
         const res = await fetch("/api/video-analysis", {
           method: "POST",
@@ -78,14 +78,14 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
             user_level: 4,
           }),
         });
-  
+
         if (!res.ok) {
           const text = await res.text();
           throw new Error(text || "Failed to analyze video");
         }
-  
+
         const data = await res.json();
-  
+
         setInfo({
           title: data.title ?? "Untitled video",
           video_url: data.video_url ?? `${YOUTUBE_WATCH_URL}${videoId}`,
@@ -94,24 +94,22 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
           summary: data.summary ?? "",
           vocab: Array.isArray(data.vocab) ? data.vocab : [],
         });
-  
+
         // 3️⃣ (Optional but recommended) Save to DB
         // await fetch("/api/videos", {
         //   method: "POST",
         //   headers: { "Content-Type": "application/json" },
         //   body: JSON.stringify(data),
         // });
-  
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchVideoInfo();
   }, [videoId]);
-  
 
   if (error) {
     return (
@@ -158,10 +156,10 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
       </header>
 
       {/* Main: video + vocab */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+      <div className="flex flex-col lg:flex-row gap-6 h-[calc(50vh)]">
         {/* VIDEO */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="relative w-full rounded-xl overflow-hidden bg-black aspect-video">
+        <div className="flex-2 min-w-0 flex flex-col">
+          <div className="relative w-full h-full rounded-xl overflow-hidden bg-black">
             {loading ? (
               <div className="absolute inset-0 flex items-center justify-center text-white">
                 Loading…
@@ -201,24 +199,26 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
         </div>
 
         {/* VOCAB CARD */}
-        <Card className="rounded-xl h-full flex flex-col p-0">
+        <Card className="rounded-xl flex-1 min-w-0 flex flex-col p-0 lg:self-stretch">
           <div className="pb-2 shrink-0 p-6">
             <h3 className="text-base font-semibold">Vocab</h3>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <div className="flex-1 overflow-y-auto px-6 pb-6 min-h-0">
             {loading ? (
               <p className="text-sm text-neutral-600">Extracting vocabulary…</p>
             ) : vocab.length === 0 ? (
               <p className="text-sm text-neutral-600">No vocabulary yet.</p>
             ) : (
-              <div className="overflow-x-auto">
+              <div>
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 bg-white z-10">
                     <tr className="border-b border-emerald-100 text-left text-neutral-600 font-medium">
-                      <th className="pb-2 pr-4">Vocab</th>
-                      <th className="pb-2 pr-4">Pronunciation</th>
-                      <th className="pb-2">Translation</th>
+                      <th className="pb-2 pr-4 whitespace-nowrap">Vocab</th>
+                      <th className="pb-2 pr-4 whitespace-nowrap">
+                        Pronunciation
+                      </th>
+                      <th className="pb-2 whitespace-nowrap">Translation</th>
                     </tr>
                   </thead>
 
