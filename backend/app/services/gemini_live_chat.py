@@ -24,8 +24,8 @@ from app.core.config import settings
 from app.core.logger import logger
 from app.core.prompts import get_vocab_chatbot_prompt
 
-# Load target words from project root
-TARGET_WORDS = ["apple", "banana", "cherry", "date", "elderberry"]
+# Default target words if none are provided by the client
+DEFAULT_TARGET_WORDS = ["りんご", "あい"]
 
 
 # class ResponseLogger(FrameProcessor):
@@ -71,7 +71,19 @@ def _create_tools_schema(target_words: list[str]) -> list[dict]:
     }]
 
 
-async def run_bot(room_url: str, token: str) -> None:
+def _normalize_words(words: list[str]) -> list[str]:
+    cleaned: list[str] = []
+    seen: set[str] = set()
+    for word in words:
+        normalized = word.strip().casefold()
+        if not normalized or normalized in seen:
+            continue
+        seen.add(normalized)
+        cleaned.append(word.strip())
+    return cleaned
+
+
+async def run_bot(room_url: str, token: str, target_words: list[str]) -> None:
     """
     Run the Gemini Live Chat bot in a Daily.co room.
     
@@ -82,7 +94,8 @@ async def run_bot(room_url: str, token: str) -> None:
     logger.info(f"Starting bot for room: {room_url}")
     
     # Initialize state - track remaining words
-    remaining_words = list(TARGET_WORDS)
+    normalized_targets = _normalize_words(target_words) or DEFAULT_TARGET_WORDS
+    remaining_words = list(normalized_targets)
 
     transport = DailyTransport(
         room_url,
@@ -96,7 +109,7 @@ async def run_bot(room_url: str, token: str) -> None:
     )
 
     # Create tools schema
-    tools = _create_tools_schema(TARGET_WORDS)
+    tools = _create_tools_schema(normalized_targets)
 
     llm = GeminiLiveLLMService(
         api_key=settings.GOOGLE_API_KEY,
@@ -107,21 +120,32 @@ async def run_bot(room_url: str, token: str) -> None:
     # Define the tool handler for marking words
     async def mark_word_handler(function_name, tool_call_id, args, llm, context, result_callback):
         """Handle the mark_word tool call when a target word is detected."""
-        word = args.get("word", "").lower()
+        word = str(args.get("word", "")).strip()
+        normalized_word = word.casefold()
         
         # Update state
-        if word in remaining_words:
-            remaining_words.remove(word)
+        remaining_normalized = [w.casefold() for w in remaining_words]
+        if normalized_word in remaining_normalized:
+            index = remaining_normalized.index(normalized_word)
+            matched_word = remaining_words.pop(index)
             
             # Notify frontend about detected word
             await task.queue_frames([RTVIServerMessageFrame(data={
                 "type": "word_detected",
-                "payload": word
+                "payload": matched_word
             })])
             
             # Craft instructions for the next turn
             if not remaining_words:
-                result_msg = f"The user said '{word}'. All words have been found! Congratulate the user and end the game."
+                await task.queue_frames([RTVIServerMessageFrame(data={
+                    "type": "all_words_completed",
+                    "payload": matched_word
+                })])
+                result_msg = (
+                    f"The user said '{word}'. All words have been found. "
+                    "You must respond with exactly this closing message in Japanese, then end the conversation and do not ask new questions: "
+                    "「素晴らしいですね！今日の会話はここまでにしましょう。お疲れさまでした。では、またね。」"
+                )
             else:
                 result_msg = (
                     f"Correct! The user said '{word}'. "
@@ -135,10 +159,12 @@ async def run_bot(room_url: str, token: str) -> None:
         
         # This string is fed back to Gemini as the result of the tool call
         await result_callback(result_msg)
+        # Nudge the model to continue after tool completion
+        await task.queue_frames([LLMRunFrame()])
 
     llm.register_function("mark_word", mark_word_handler)
 
-    messages = get_vocab_chatbot_prompt(TARGET_WORDS)
+    messages = get_vocab_chatbot_prompt(normalized_targets)
 
     context = LLMContext(messages)
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
@@ -195,11 +221,28 @@ async def run_bot(room_url: str, token: str) -> None:
 if __name__ == "__main__":
     import argparse
     import asyncio
+    import json
     
     # We expect arguments: python -m app.services.gemini_live_chat -u URL -t TOKEN
     parser = argparse.ArgumentParser(description="Gemini Live Chat Bot")
     parser.add_argument("-u", "--url", type=str, required=True, help="Daily Room URL")
     parser.add_argument("-t", "--token", type=str, required=True, help="Daily Room Token")
+    parser.add_argument(
+        "-w",
+        "--words",
+        type=str,
+        required=False,
+        help="JSON array of target words",
+    )
     args = parser.parse_args()
 
-    asyncio.run(run_bot(args.url, args.token))
+    parsed_words: list[str] = []
+    if args.words:
+        try:
+            raw = json.loads(args.words)
+            if isinstance(raw, list):
+                parsed_words = [str(item) for item in raw]
+        except json.JSONDecodeError:
+            parsed_words = []
+
+    asyncio.run(run_bot(args.url, args.token, parsed_words or DEFAULT_TARGET_WORDS))

@@ -1,9 +1,10 @@
 """Chat API endpoints for managing bot sessions."""
+import json
 import os
 import subprocess
 import sys
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, BackgroundTasks, Request
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
@@ -14,7 +15,7 @@ from app.services.daily import create_daily_room, get_daily_token
 router = APIRouter()
 
 
-def _spawn_bot(room_url: str, token: str) -> None:
+def _spawn_bot(room_url: str, token: str, target_words: list[str]) -> None:
     """
     Spawn the bot process as a subprocess.
     
@@ -30,16 +31,20 @@ def _spawn_bot(room_url: str, token: str) -> None:
         backend_dir = settings.PROJECT_ROOT / "backend"
         
         # Spawn the bot as a subprocess using python module syntax
+        cmd = [
+            sys.executable,  # Use the current Python interpreter
+            "-m",
+            "app.services.gemini_live_chat",
+            "-u",
+            room_url,
+            "-t",
+            token,
+        ]
+        if target_words:
+            cmd.extend(["-w", json.dumps(target_words, ensure_ascii=False)])
+
         subprocess.Popen(
-            [
-                sys.executable,  # Use the current Python interpreter
-                "-m",
-                "app.services.gemini_live_chat",
-                "-u",
-                room_url,
-                "-t",
-                token,
-            ],
+            cmd,
             cwd=str(backend_dir),  # Run from backend directory
             env=os.environ.copy(),
         )
@@ -50,7 +55,9 @@ def _spawn_bot(room_url: str, token: str) -> None:
 
 
 @router.post("/start")
-async def start_chat_session(request: Request) -> JSONResponse:
+async def start_chat_session(
+    request: Request, background_tasks: BackgroundTasks
+) -> JSONResponse:
     """
     Start a new chat session by creating a Daily room and spawning the bot.
     
@@ -65,6 +72,25 @@ async def start_chat_session(request: Request) -> JSONResponse:
     logger.info("Received start chat session request")
 
     try:
+        payload = {}
+        try:
+            payload = await request.json()
+        except Exception:
+            payload = {}
+
+        raw_vocab = payload.get("vocab", []) if isinstance(payload, dict) else []
+        target_words: list[str] = []
+        if isinstance(raw_vocab, list):
+            for entry in raw_vocab:
+                if isinstance(entry, str):
+                    word = entry.strip()
+                elif isinstance(entry, dict):
+                    word = str(entry.get("word", "")).strip()
+                else:
+                    word = ""
+                if word:
+                    target_words.append(word)
+
         # Step 1: Create a new Daily Room
         logger.info("Step 1: Creating Daily room...")
         room_data = await create_daily_room()
@@ -77,10 +103,10 @@ async def start_chat_session(request: Request) -> JSONResponse:
         bot_token = await get_daily_token(room_name)
         logger.info("Bot token created successfully")
 
-        # Step 3: Spawn the bot process
-        logger.info("Step 3: Spawning bot process...")
-        _spawn_bot(room_url, bot_token)
-        logger.info("Bot process spawned successfully")
+        # Step 3: Spawn the bot process (background to reduce latency)
+        logger.info("Step 3: Queueing bot process spawn...")
+        background_tasks.add_task(_spawn_bot, room_url, bot_token, target_words)
+        logger.info("Bot process queued")
 
         # Step 4: Return the room URL to the client
         response_data = {

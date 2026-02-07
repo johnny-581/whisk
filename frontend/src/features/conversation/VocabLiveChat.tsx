@@ -13,16 +13,17 @@ import {
 
 import { VocabLiveChatContent } from "./components/VocabLiveChatContent";
 import { DEFAULT_TRANSPORT, TRANSPORT_CONFIG } from "./config";
+import { useUserStore } from "@/lib/store";
 
 const FALLBACK_WORDS = [
-  "apple",
-  "banana",
-  "cherry",
-  "date",
-  "elderberry",
-  "fig",
-  "grape",
-  "honey",
+  "りんご",
+  "あい",
+  "ねこ",
+  "いぬ",
+  "みず",
+  "やま",
+  "ともだち",
+  "ほん",
 ];
 
 const MIN_VOCAB = 6;
@@ -113,6 +114,7 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
   const [connectParams, setConnectParams] = useState<APIRequest>(
     TRANSPORT_CONFIG[DEFAULT_TRANSPORT]
   );
+  const jlptLevel = useUserStore((state) => state.jlptLevel);
 
   const vocabEndpoint = useMemo(() => {
     return `/api/videos/${videoId}/vocab`;
@@ -120,11 +122,16 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (jlptLevel && Number.isFinite(jlptLevel)) {
+      setUserLevel(normalizeLevel(`N${jlptLevel}`));
+      return;
+    }
+
     const storedLevel = window.localStorage.getItem("userLevel");
     if (storedLevel) {
       setUserLevel(normalizeLevel(storedLevel));
     }
-  }, []);
+  }, [jlptLevel]);
 
   useEffect(() => {
     let isMounted = true;
@@ -248,6 +255,7 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
                 handleConnect={handleConnect}
                 handleDisconnect={handleDisconnect}
                 initialWords={initialWords}
+                videoId={videoId}
               />
             )
           }
