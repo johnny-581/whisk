@@ -49,7 +49,27 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
       try {
         setLoading(true);
         setError(null);
-
+  
+        // 1️⃣ Try DB first
+        console.log("video id:", videoId)
+        const dbRes = await fetch(`/api/db/${videoId}`);
+  
+        if (dbRes.ok) {
+          const dbData = await dbRes.json();
+  
+          setInfo({
+            title: dbData.title ?? "Untitled video",
+            video_url: dbData.video_url ?? `${YOUTUBE_WATCH_URL}${videoId}`,
+            duration: dbData.duration ?? "",
+            tags: Array.isArray(dbData.tags) ? dbData.tags : [],
+            summary: dbData.summary ?? "",
+            vocab: Array.isArray(dbData.vocab) ? dbData.vocab : [],
+          });
+  
+          return; // ✅ STOP — skip analysis
+        }
+  
+        // 2️⃣ Not in DB → run analysis
         const res = await fetch("/api/video-analysis", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -58,14 +78,14 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
             user_level: 4,
           }),
         });
-
+  
         if (!res.ok) {
           const text = await res.text();
-          throw new Error(text || "Failed to load video");
+          throw new Error(text || "Failed to analyze video");
         }
-
+  
         const data = await res.json();
-
+  
         setInfo({
           title: data.title ?? "Untitled video",
           video_url: data.video_url ?? `${YOUTUBE_WATCH_URL}${videoId}`,
@@ -74,15 +94,24 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
           summary: data.summary ?? "",
           vocab: Array.isArray(data.vocab) ? data.vocab : [],
         });
+  
+        // 3️⃣ (Optional but recommended) Save to DB
+        // await fetch("/api/videos", {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify(data),
+        // });
+  
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchVideoInfo();
   }, [videoId]);
+  
 
   if (error) {
     return (

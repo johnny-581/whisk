@@ -30,42 +30,41 @@ export async function GET() {
   }
 }
 
-/**
- * POST /api/videos - Create a new video with vocab
- * Persists video metadata and all associated vocabulary
- * Idempotent: updates existing video if video_id already exists
- */
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
+// /**
+//  * POST /api/videos - Create a new video with vocab
 
-    // Validate required fields
-    if (!body.video_id || !body.title) {
-      return NextResponse.json(
-        { error: "video_id and title are required" },
-        { status: 400 }
-      );
-    }
+//  */
+// export async function POST(req: Request) {
+//   try {
+//     const body = await req.json();
 
-    const result = await fetch(`${BASE_URL}/videos`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+//     // Validate required fields
+//     if (!body.video_id || !body.title) {
+//       return NextResponse.json(
+//         { error: "video_id and title are required" },
+//         { status: 400 }
+//       );
+//     }
 
-    if (!result.ok) {
-      const text = await result.text();
-      return NextResponse.json({ error: text }, { status: result.status });
-    }
+//     const result = await fetch(`${BASE_URL}/videos`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(body),
+//     });
 
-    const data = await result.json();
-    return NextResponse.json(data, { status: 201 });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to create video" },
-      { status: 500 }
-    );
-  }
-}
+//     if (!result.ok) {
+//       const text = await result.text();
+//       return NextResponse.json({ error: text }, { status: result.status });
+//     }
+
+//     const data = await result.json();
+//     return NextResponse.json(data, { status: 201 });
+//   } catch (error) {
+//     return NextResponse.json(
+//       { error: "Failed to create video" },
+//       { status: 500 }
+//     );
+//   }
+// }

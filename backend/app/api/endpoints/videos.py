@@ -17,11 +17,12 @@ def list_videos():
     conn = get_connection()
     try:
         rows = conn.execute(
-            "SELECT id, title, tags FROM videos ORDER BY created_at DESC"
+            "SELECT id,title, tags, youtube_video_id FROM videos ORDER BY created_at DESC"
         ).fetchall()
         return [
             VideoSummary(
                 id=row[0],
+                video_id = row[3],
                 title=row[1],
                 tags=row[2].split(",") if row[2] else []
             )
