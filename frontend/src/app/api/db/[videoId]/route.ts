@@ -2,12 +2,14 @@ import { NextResponse } from "next/server";
 
 const BASE_URL = process.env.SERVER_BASE_URL!;
 
-export async function GET() {
+export async function GET(req: Request,
+    context: { params: Promise<{ videoId: string }> }
+) {
   try {
 
+    const { videoId } = await context.params;
 
-    
-    const result = await fetch(`${BASE_URL}/videos`, {
+    const result = await fetch(`${BASE_URL}/videos/${videoId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
