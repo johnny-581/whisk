@@ -17,13 +17,19 @@ interface ServerMessage {
   payload?: string;
 }
 
-interface Word {
+interface WordInput {
+  id?: string;
   word: string;
+  difficulty?: string;
+  start_time?: string;
+}
+
+interface Word extends WordInput {
   active: boolean;
 }
 
 interface VocabLiveChatContentProps extends PipecatBaseChildProps {
-  initialWords: string[];
+  initialWords: WordInput[];
 }
 
 // Content Component (separated for cleaner logic)
@@ -35,7 +41,7 @@ export const VocabLiveChatContent = ({
 }: VocabLiveChatContentProps) => {
   // State Management
   const [words, setWords] = useState<Word[]>(() =>
-    initialWords.map((w) => ({ word: w, active: true }))
+    initialWords.map((w) => ({ ...w, active: true }))
   );
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -46,7 +52,7 @@ export const VocabLiveChatContent = ({
   }, [client]);
 
   useEffect(() => {
-    setWords(initialWords.map((w) => ({ word: w, active: true })));
+    setWords(initialWords.map((w) => ({ ...w, active: true })));
   }, [initialWords]);
 
   // Event Handlers
@@ -104,7 +110,7 @@ export const VocabLiveChatContent = ({
                   onClick={handleButtonClick}
                 />
               </div>
-              <div className="mt-4 h-[320px] overflow-hidden">
+              <div className="mt-4 h-80 overflow-hidden">
                 <CustomConversationPanel />
               </div>
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { APIRequest } from "@pipecat-ai/client-js";
 import type { PipecatBaseChildProps } from "@pipecat-ai/voice-ui-kit";
 import {
   ThemeProvider,
@@ -24,13 +25,78 @@ const FALLBACK_WORDS = [
   "honey",
 ];
 
-const pickRandom = (words: string[], maxCount: number) => {
-  const copy = [...words];
+const MIN_VOCAB = 6;
+const MAX_VOCAB = 10;
+const DEFAULT_USER_LEVEL = "N3";
+
+interface VocabWord {
+  id?: string;
+  word: string;
+  difficulty?: string;
+  start_time?: string;
+}
+
+const pickRandomRange = <T,>(
+  items: T[],
+  minCount: number,
+  maxCount: number
+): T[] => {
+  if (!items.length) return [];
+  const upper = Math.min(maxCount, items.length);
+  if (upper <= minCount) {
+    return items.slice(0, upper);
+  }
+
+  const count =
+    minCount + Math.floor(Math.random() * Math.max(1, upper - minCount + 1));
+  const copy = [...items];
   for (let i = copy.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
-  return copy.slice(0, maxCount);
+  return copy.slice(0, count);
+};
+
+const normalizeLevel = (level: string) => {
+  const upper = (level || "").toUpperCase();
+  return ["N1", "N2", "N3", "N4", "N5"].includes(upper) ? upper : "N3";
+};
+
+const normalizeWord = (
+  entry: unknown,
+  level: string,
+  index: number
+): VocabWord | null => {
+  if (typeof entry === "string") {
+    const trimmed = entry.trim();
+    return trimmed
+      ? {
+          id: `word-${index}-${trimmed}`,
+          word: trimmed,
+          difficulty: level,
+        }
+      : null;
+  }
+
+  if (typeof entry === "object" && entry) {
+    const obj = entry as Record<string, unknown>;
+    const word = typeof obj.word === "string" ? obj.word.trim() : "";
+    if (!word) return null;
+    const difficulty =
+      typeof obj.difficulty === "string"
+        ? normalizeLevel(obj.difficulty)
+        : level;
+
+    return {
+      id: typeof obj.id === "string" ? obj.id : `word-${index}-${word}`,
+      word,
+      difficulty,
+      start_time:
+        typeof obj.start_time === "string" ? obj.start_time : undefined,
+    };
+  }
+
+  return null;
 };
 
 // Main Feature Component with Providers
@@ -39,15 +105,26 @@ interface VocabLiveChatProps {
 }
 
 export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
-  const connectParams = TRANSPORT_CONFIG[DEFAULT_TRANSPORT];
-  const [initialWords, setInitialWords] = useState<string[]>([]);
+  const videoId = conversationId ?? "default";
+  const [initialWords, setInitialWords] = useState<VocabWord[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
   const [initError, setInitError] = useState<string | null>(null);
+  const [userLevel, setUserLevel] = useState<string>(DEFAULT_USER_LEVEL);
+  const [connectParams, setConnectParams] = useState<APIRequest>(
+    TRANSPORT_CONFIG[DEFAULT_TRANSPORT]
+  );
 
   const vocabEndpoint = useMemo(() => {
-    const videoId = conversationId ?? "default";
     return `/api/videos/${videoId}/vocab`;
-  }, [conversationId]);
+  }, [videoId]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const storedLevel = window.localStorage.getItem("userLevel");
+    if (storedLevel) {
+      setUserLevel(normalizeLevel(storedLevel));
+    }
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -60,8 +137,9 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
         setTimeout(resolve, delayMs)
       );
 
+      const level = normalizeLevel(userLevel);
       try {
-        const res = await fetch(vocabEndpoint, {
+        const res = await fetch(`${vocabEndpoint}?level=${level}`, {
           method: "GET",
           signal: controller.signal,
         });
@@ -70,23 +148,43 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
         }
         const data = await res.json();
         const vocab = Array.isArray(data?.vocab) ? data.vocab : [];
-        const normalized = vocab
-          .map((entry: { word?: string } | string) =>
-            typeof entry === "string" ? entry : entry.word
+        const normalized: VocabWord[] = vocab
+          .map((entry: unknown, idx: number) =>
+            normalizeWord(entry, level, idx)
           )
-          .filter((word: string | undefined): word is string => Boolean(word));
+          .filter(
+            (entry: VocabWord | null): entry is VocabWord => Boolean(entry)
+          );
 
-        const picked = pickRandom(
-          normalized.length > 0 ? normalized : FALLBACK_WORDS,
-          6
+        const fallbackWords: VocabWord[] = FALLBACK_WORDS.map(
+          (word: string, idx: number) => ({
+            id: `fallback-${idx}-${word}`,
+            word,
+            difficulty: level,
+          })
         );
+
+        const picked: VocabWord[] =
+          normalized.length > 0
+            ? pickRandomRange<VocabWord>(normalized, MIN_VOCAB, MAX_VOCAB)
+            : pickRandomRange<VocabWord>(fallbackWords, MIN_VOCAB, MAX_VOCAB);
+
         if (isMounted) {
           setInitialWords(picked);
         }
       } catch (error) {
+        const fallbackWords: VocabWord[] = FALLBACK_WORDS.map(
+          (word: string, idx: number) => ({
+            id: `fallback-${idx}-${word}`,
+            word,
+            difficulty: normalizeLevel(userLevel),
+          })
+        );
         if (isMounted) {
           setInitError("Failed to load vocab list.");
-          setInitialWords(pickRandom(FALLBACK_WORDS, 6));
+          setInitialWords(
+            pickRandomRange<VocabWord>(fallbackWords, MIN_VOCAB, MAX_VOCAB)
+          );
         }
       } finally {
         await delayPromise;
@@ -101,7 +199,29 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
       isMounted = false;
       controller.abort();
     };
-  }, [vocabEndpoint]);
+  }, [vocabEndpoint, userLevel]);
+
+  useEffect(() => {
+    const baseConfig = TRANSPORT_CONFIG[DEFAULT_TRANSPORT];
+    const baseRequestData =
+      (baseConfig.requestData as Record<string, unknown> | undefined) ?? {};
+    setConnectParams({
+      ...baseConfig,
+      requestData: {
+        ...baseRequestData,
+        videoId,
+        userLevel,
+        vocab: initialWords.map(
+          ({ id, word, difficulty, start_time }: VocabWord) => ({
+            id: id ?? null,
+            word,
+            difficulty: difficulty ?? null,
+            start_time: start_time ?? null,
+          })
+        ),
+      },
+    });
+  }, [initialWords, userLevel, videoId]);
 
   return (
     <ThemeProvider defaultTheme="terminal" disableStorage>
