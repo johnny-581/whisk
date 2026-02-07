@@ -1,59 +1,78 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { WordCard } from "@/components/ui/WordCard";
 
 interface VideoDetailProps {
   videoId: string;
 }
 
-interface Word {
-  word: string;
-  start_time: string;
+/** Matches backend Vocab: japanese_vocab, pronunciation, english_translation, timestamp, jlpt_level */
+interface VocabItem {
+  japanese_vocab: string;
+  pronunciation: string;
+  english_translation: string;
+  timestamp?: string;
+  jlpt_level?: number;
 }
 
-export function VideoDetail({ videoId }: VideoDetailProps) {
-  const router = useRouter();
+interface VideoInfo {
+  title: string;
+  video_url: string;
+  duration: string;
+  tags: string[];
+  summary: string;
+  vocab: VocabItem[];
+}
 
-  const [title, setTitle] = useState("");
-  const [duration, setDuration] = useState("");
-  const [words, setWords] = useState<Word[]>([]);
+const YOUTUBE_WATCH_URL = "https://www.youtube.com/watch?v=";
+const YOUTUBE_EMBED_URL = "https://www.youtube.com/embed/";
+
+// Placeholder until we have a conversations-by-video API
+const MOCK_CONVERSATIONS = [
+  { id: "1", label: "Saturday, Jan 31 at 4:00 PM" },
+  { id: "2", label: "Friday, Jan 30 at 8:32 PM" },
+  { id: "3", label: "Friday, Jan 30 at 8:32 PM" },
+  { id: "4", label: "Friday, Jan 30 at 8:32 PM" },
+];
+
+export function VideoDetail({ videoId }: VideoDetailProps) {
+  const [info, setInfo] = useState<VideoInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchVideoInfo = async () => {
       try {
         setLoading(true);
-
+        setError(null);
         const res = await fetch("/api/vocab-extract", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ video_id: videoId, user_level: 4 }), // CHANGE user_level once db is implemented
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            video_url: `${YOUTUBE_WATCH_URL}${videoId}`,
+            user_level: 4,
+          }),
         });
 
         if (!res.ok) {
-          throw new Error(await res.text());
+          const text = await res.text();
+          throw new Error(text || "Failed to load video");
         }
 
         const data = await res.json();
-
-        setTitle(data.title ?? "Untitled video");
-        setDuration(data.duration ?? "");
-        setWords(data.vocab ?? []);
-      } catch (error) {
-        console.error("Failed to fetch video info:", error);
+        setInfo({
+          title: data.title ?? "Untitled video",
+          video_url: data.video_url ?? `${YOUTUBE_WATCH_URL}${videoId}`,
+          duration: data.duration ?? "",
+          tags: Array.isArray(data.tags) ? data.tags : [],
+          summary: data.summary ?? "",
+          vocab: Array.isArray(data.vocab) ? data.vocab : [],
+        });
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Something went wrong");
       } finally {
         setLoading(false);
       }
@@ -62,64 +81,212 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
     fetchVideoInfo();
   }, [videoId]);
 
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-red-600">{error}</p>
+        <Button variant="outline" onClick={() => window.history.back()}>
+          ← Back
+        </Button>
+      </div>
+    );
+  }
+
+  const title = info?.title ?? "";
+  const videoUrl = info?.video_url ?? `${YOUTUBE_WATCH_URL}${videoId}`;
+  const tags = info?.tags ?? [];
+  const vocab = info?.vocab ?? [];
+  const summary = info?.summary ?? "";
+
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <Button variant="ghost" onClick={() => router.back()} className="mb-4">
-        ← Back to Dashboard
-      </Button>
+    <div className="space-y-6">
+      {/* Header: title, URL, tags, AI Practice */}
+      <header className="space-y-2">
+        <h1 className="text-xl font-semibold text-[#1A2421] leading-tight">
+          {loading ? "Loading…" : title || "Untitled video"}
+        </h1>
+        <p className="text-sm text-muted-foreground break-all">{videoUrl}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800"
+            >
+              {tag}
+            </span>
+          ))}
+          <Button
+            asChild
+            variant="outline"
+            className="ml-auto rounded-xl border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+          >
+            <Link
+              href={`/conversations/${videoId}`}
+              className="flex items-center gap-2"
+            >
+              <span className="inline-flex size-4 items-center justify-center">
+                <EqualizerIcon />
+              </span>
+              AI Practice
+            </Link>
+          </Button>
+        </div>
+      </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{loading ? "Loading…" : title}</CardTitle>
-          <CardDescription>
-            Video details and extracted vocabulary
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent className="space-y-4">
-          {/* Video Info */}
-          <div>
-            <h3 className="font-semibold mb-2">Video Information</h3>
-            <p className="text-sm text-muted-foreground">
-              Put summary here
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Duration: {duration || "—"}
-            </p>
+      {/* Main: video embed + vocab card */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-4">
+          <div className="relative w-full rounded-xl overflow-hidden bg-black aspect-video">
+            {loading ? (
+              <div className="absolute inset-0 flex items-center justify-center text-white">
+                Loading…
+              </div>
+            ) : (
+              <>
+                <iframe
+                  src={`${YOUTUBE_EMBED_URL}${videoId}`}
+                  title={title}
+                  className="absolute inset-0 w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                  <a
+                    href={videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded bg-black/60 px-2 py-1.5 text-xs text-white hover:bg-black/80"
+                  >
+                    <YoutubeIcon />
+                    Watch on Youtube
+                  </a>
+                  <button
+                    type="button"
+                    className="rounded bg-black/60 p-1.5 text-white hover:bg-black/80"
+                    aria-label="Share"
+                  >
+                    <ShareIcon />
+                  </button>
+                </div>
+              </>
+            )}
           </div>
+        </div>
 
-          {/* Vocabulary */}
-          <div>
-            <h3 className="font-semibold mb-2">Extracted Vocabulary</h3>
-
+        <Card className="h-fit rounded-xl">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Vocab</CardTitle>
+          </CardHeader>
+          <CardContent>
             {loading ? (
               <p className="text-sm text-muted-foreground">
                 Extracting vocabulary…
               </p>
-            ) : words.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No vocabulary found.
-              </p>
+            ) : vocab.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No vocabulary yet.</p>
             ) : (
-              <div className="space-y-2">
-                {words.map((w, idx) => (
-                  <WordCard
-                    key={idx}
-                    word={w.word}
-                    start_time={w.start_time}
-                  />
-                ))}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-emerald-100 text-left text-muted-foreground font-medium">
+                      <th className="pb-2 pr-4">Vocab</th>
+                      <th className="pb-2 pr-4">Pronunciation</th>
+                      <th className="pb-2">Translation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {vocab.map((v, idx) => (
+                      <tr key={idx} className="border-b border-emerald-50/80">
+                        <td className="py-2 pr-4 font-medium text-[#1A2421]">
+                          {v.japanese_vocab}
+                        </td>
+                        <td className="py-2 pr-4 text-muted-foreground">
+                          {v.pronunciation}
+                        </td>
+                        <td className="py-2 text-muted-foreground">
+                          {v.english_translation}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
-          </div>
+          </CardContent>
+        </Card>
+      </div>
 
-          <Button asChild className="w-full">
-            <Link href={`/conversations/${videoId}`}>
-              Practice with this Video
-            </Link>
-          </Button>
+      {/* Summary if present */}
+      {summary && (
+        <p className="text-sm text-muted-foreground max-w-2xl">{summary}</p>
+      )}
+
+      {/* Your conversations */}
+      <Card className="rounded-xl">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Your conversations</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="divide-y divide-emerald-50">
+            {MOCK_CONVERSATIONS.map((c) => (
+              <li key={c.id}>
+                <Link
+                  href={`/conversations/${c.id}`}
+                  className="flex items-center justify-between py-3 text-sm text-[#1A2421] hover:text-emerald-700"
+                >
+                  <span>{c.label}</span>
+                  <span className="text-muted-foreground">
+                    <ArrowRightIcon />
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function EqualizerIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="4" y1="20" x2="4" y2="14" />
+      <line x1="4" y1="10" x2="4" y2="4" />
+      <line x1="12" y1="20" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12" y2="4" />
+      <line x1="20" y1="20" x2="20" y2="16" />
+      <line x1="20" y1="12" x2="20" y2="4" />
+      <line x1="2" y1="14" x2="6" y2="14" />
+      <line x1="10" y1="12" x2="14" y2="12" />
+      <line x1="18" y1="16" x2="22" y2="16" />
+    </svg>
+  );
+}
+
+function YoutubeIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+    </svg>
+  );
+}
+
+function ShareIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <polyline points="16 6 12 2 8 6" />
+      <line x1="12" y1="2" x2="12" y2="15" />
+    </svg>
+  );
+}
+
+function ArrowRightIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
   );
 }
