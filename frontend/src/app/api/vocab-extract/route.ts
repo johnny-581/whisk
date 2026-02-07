@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     // TODO: implement database
 
     const body = await req.json();
-    const { video_id } = body as { video_id: string };
+    const { video_id, user_level} = body as { video_id: string, user_level: number};
 
     if (!video_id) {
       return NextResponse.json(
@@ -15,13 +15,13 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-
+    console.log(body)
     const result = await fetch(`${BASE_URL}/vocab-extract`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ video_id }),
+      body: JSON.stringify(body),
     });
 
     if (!result.ok) {
