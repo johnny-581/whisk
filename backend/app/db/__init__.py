@@ -25,23 +25,28 @@ def init_schema(conn: sqlite3.Connection) -> None:
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS videos (
             id TEXT PRIMARY KEY,
-            youtube_video_id TEXT NOT NULL,
+            youtube_video_id TEXT NOT NULL UNIQUE,
+            title TEXT NOT NULL,
+            tags TEXT,
+            video_url TEXT NOT NULL,
+            duration TEXT NOT NULL,
             summary TEXT,
             created_at TEXT NOT NULL
         );
 
         CREATE TABLE IF NOT EXISTS vocabs (
             id TEXT PRIMARY KEY,
-            word TEXT UNIQUE NOT NULL,
-            definition TEXT,
-            difficulty INTEGER,
+            japanese_vocab TEXT UNIQUE NOT NULL,
+            pronunciation TEXT,
+            english_translation TEXT,
+            jlpt_level INTEGER,
             created_at TEXT NOT NULL
         );
 
         CREATE TABLE IF NOT EXISTS video_vocab (
             video_id TEXT NOT NULL,
             vocab_id TEXT NOT NULL,
-            start_time TEXT NOT NULL,
+            timestamp TEXT NOT NULL,
             sentence TEXT,
             PRIMARY KEY (video_id, vocab_id),
             FOREIGN KEY (video_id) REFERENCES videos(id),
