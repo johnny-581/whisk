@@ -49,7 +49,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
         setLoading(true);
         setError(null);
 
-        const res = await fetch("/api/vocab-extract", {
+        const res = await fetch("/api/video-analysis", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

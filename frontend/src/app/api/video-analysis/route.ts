@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       );
     }
     console.log(body)
-    const result = await fetch(`${BASE_URL}/vocab-extract`, {
+    const result = await fetch(`${BASE_URL}/video_analysis`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
