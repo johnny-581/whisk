@@ -55,14 +55,6 @@ export function VideoUploadForm() {
 
   return (
     <div className="container mx-auto p-6 max-w-2xl">
-      <Button
-        variant="secondary"
-        onClick={() => router.back()}
-        className="mb-4"
-      >
-        ← Back
-      </Button>
-
       <Card>
         <div className="space-y-4">
           <div className="space-y-2">

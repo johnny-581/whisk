@@ -10,4 +10,7 @@
   --color-neutral-400: #62736c;
   --color-neutral-700: #3d4d46;
   --color-neutral-900: #1a2421;
+
+  --button-radius: 0.75rem;
+  --card-radius: 1rem;
 }
