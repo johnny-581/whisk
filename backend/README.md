@@ -20,6 +20,8 @@ cd backend
 uv sync
 ```
 
+**Windows users:** Install [uv](https://docs.astral.sh/uv/getting-started/installation/) first (e.g. `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`). The backend depends on `daily-python`, which only provides wheels for **Linux and macOS**. To run the backend on Windows, use [WSL](https://docs.microsoft.com/en-us/windows/wsl/): open the project in WSL and run `uv sync` and `uv run python run.py` from there.
+
 ## Running the Application
 
 ### Development Server
