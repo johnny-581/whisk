@@ -22,22 +22,20 @@ export default function DashboardLayout({
         </div>
 
         <div className="flex-1 flex flex-col p-4 space-y-4">
-          <Button
-            asChild
-            className="w-full rounded-xl h-11 font-bold bg-emerald-800 hover:bg-emerald-900 text-white"
-          >
-            <Link href="/videos/new" className="flex items-center justify-center gap-2">
+          <Link href="/videos/new">
+            <Button className="w-full rounded-xl h-11 font-bold bg-emerald-800 hover:bg-emerald-900 text-white">
               <span className="text-lg leading-none">+</span>
               New video
-            </Link>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="w-full border-emerald-100 text-emerald-900 hover:bg-emerald-50 rounded-xl h-11 font-bold"
-          >
-            <Link href="/conversations/123">Conversations (for demo)</Link>
-          </Button>
+            </Button>
+          </Link>
+          <Link href="/conversations/123">
+            <Button
+              variant="secondary"
+              className="w-full border-emerald-100 text-emerald-900 hover:bg-emerald-50 rounded-xl h-11 font-bold"
+            >
+              Conversations (for demo)
+            </Button>
+          </Link>
 
           <div className="flex-1 mt-4">
             <h2 className="text-xs font-bold text-emerald-800/50 uppercase tracking-widest mb-3 px-2">
