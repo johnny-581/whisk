@@ -20,15 +20,14 @@ def get_vocab_chatbot_prompt(target_words: list[str]) -> list[dict]:
     ]
 
 
-def get_video_analysis_prompt(transcript: str, user_level: int) -> str:
+def get_video_analysis_prompt(video_id: str, video_url: str, transcript: str, user_level: int) -> str:
     """Build the prompt for video analysis and vocabulary extraction."""
     return f"""
             Your job is to extract exactly 20 Japanese vocabularies from the provided YouTube video transcript.
 
             In your response, provide:
-            - video_id: The YouTube video ID
-            - video_url: The full video URL
-            - title: The video title
+            - title: The video title given the video_id: {video_id}
+            - url: {video_url}
             - duration: The video duration in mm:ss format
             - tags: A list of relevant tags for the video content
             - summary: A concise summary of the video content (2-3 sentences)

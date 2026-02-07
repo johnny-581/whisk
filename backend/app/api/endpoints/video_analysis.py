@@ -24,7 +24,7 @@ async def video_analysis(request: VideoAnalysisRequest):
     
     response = client.models.generate_content(
         model="gemini-3-flash-preview",
-        contents=get_video_analysis_prompt(transcript, request.user_level),
+        contents=get_video_analysis_prompt(video_id, request.video_url, transcript, request.user_level),
         config={
             "response_mime_type": "application/json",
             "response_json_schema": Video.model_json_schema(),
