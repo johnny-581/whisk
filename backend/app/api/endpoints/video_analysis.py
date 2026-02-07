@@ -1,0 +1,33 @@
+from fastapi import APIRouter
+from app.schemas.video_schema import VideoAnalysisResponse, VideoAnalysisRequest
+from app.services.youtube import ytt_api, format_fetched_transcript, extract_video_id
+from google import genai
+from app.core.config import settings
+from app.core.prompts import get_video_analysis_prompt
+
+
+router = APIRouter()
+
+client = genai.Client(api_key=settings.GOOGLE_API_KEY)
+
+
+#request body: video_url: str
+@router.post("", response_model=VideoAnalysisResponse)
+async def video_analysis(request: VideoAnalysisRequest):
+    print(f"Analyzing video: {request.video_url}")
+
+    video_id = extract_video_id(request.video_url)
+    print(f"Extracting transcript - Video ID: {video_id}")
+    transcript = ytt_api.fetch(video_id)
+    transcript = format_fetched_transcript(transcript)
+    print(f"Transcript Extracted!")
+    
+    response = client.models.generate_content(
+        model="gemini-3-flash-preview",
+        contents=get_video_analysis_prompt(transcript, request.user_level),
+        config={
+            "response_mime_type": "application/json",
+            "response_json_schema": VideoAnalysisResponse.model_json_schema(),
+        },
+    )
+    return VideoAnalysisResponse(**response.parsed)

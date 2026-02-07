@@ -40,7 +40,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ video_id: videoId }),
+          body: JSON.stringify({ video_id: videoId, user_level: 4 }), // CHANGE user_level once db is implemented
         });
 
         if (!res.ok) {

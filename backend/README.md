@@ -58,3 +58,14 @@ pyright
 1. Create endpoint function in `app/api/endpoints/`
 2. Register router in `app/api/routes.py`
 3. Add any new services in `app/services/`
+
+## Testing the video_analysis endpoint
+
+```
+curl -X POST http://localhost:8000/vocab-extract \
+     -H "Content-Type: application/json" \
+     -d '{
+           "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+           "user_level": 3
+         }'
+```
