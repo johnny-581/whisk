@@ -2,34 +2,51 @@
   "N5": [
     {
       "question": "新しい くるまですね。",
+      "questionEn": "It's a new car, isn't it?",
       "options": ["あたらしい", "あだらしい", "あらたしい", "あらだしい"],
+      "optionsHiragana": ["あたらしい", "あだらしい", "あらたしい", "あらだしい"],
       "correct": 0
     },
     {
       "question": "そと でまちましょう。",
+      "questionEn": "Let's wait outside.",
       "options": ["가", "外", "列", "各"],
+      "optionsHiragana": ["が", "そと", "れつ", "かく"],
       "correct": 1
     },
     {
       "question": "あそこでタクシーに（　）。",
+      "questionEn": "I got on a taxi over there.",
       "options": ["のりました", "あがりました", "つきました", "はいりました"],
+      "optionsHiragana": ["のりました", "あがりました", "つきました", "はいりました"],
       "correct": 0
     },
     {
       "question": "弟はヘや（　）そうじをしました。",
+      "questionEn": "My younger brother cleaned his room ( ).",
       "options": ["が", "を", "に", "の"],
+      "optionsHiragana": ["が", "を", "に", "の"],
       "correct": 1
     },
     {
       "question": "けさの パンは おいしかったです。",
+      "questionEn": "This morning's bread was delicious.",
       "options": ["いさ", "けさ", "きさ", "あさ"],
+      "optionsHiragana": ["いさ", "けさ", "きさ", "あさ"],
       "correct": 1
     }
   ],
   "N4": [
     {
       "question": "昨日は、風が つよかったです。",
+      "questionEn": "Yesterday, the wind was strong.",
       "options": [
+        "づよかったです",
+        "つよかったです",
+        "つうよかったです",
+        "づうよかったです"
+      ],
+      "optionsHiragana": [
         "づよかったです",
         "つよかったです",
         "つうよかったです",
@@ -39,26 +56,39 @@
     },
     {
       "question": "この料理は（　）すぎる。辛くて食べられない。",
+      "questionEn": "This dish is too ( ); it's too spicy to eat.",
       "options": ["から", "からい", "からく", "からかった"],
+      "optionsHiragana": ["から", "からい", "からく", "からかった"],
       "correct": 0
     },
     {
       "question": "この道を まっすぐ 行ってください。",
+      "questionEn": "Please go straight down this road.",
       "options": ["歩って", "通って", "行って", "走って"],
+      "optionsHiragana": ["あゆって", "とおって", "いって", "はしって"],
       "correct": 2
     },
     {
       "question": "（　）の辞書は、とても役に立ちます。",
+      "questionEn": "This dictionary is very useful.",
       "options": ["この", "これ", "ここ", "こちら"],
+      "optionsHiragana": ["この", "これ", "ここ", "こちら"],
       "correct": 0
     },
     {
       "question": "昨日は どこへも（　）。",
+      "questionEn": "I didn't go anywhere yesterday.",
       "options": [
         "行きませんでした",
         "行きました",
         "行かなかったです",
         "行ったです"
+      ],
+      "optionsHiragana": [
+        "いきませんでした",
+        "いきました",
+        "いかなかったです",
+        "いったです"
       ],
       "correct": 0
     }
@@ -66,86 +96,121 @@
   "N3": [
     {
       "question": "会議に新しい 設備 を導入した。",
+      "questionEn": "We introduced new equipment for the meeting.",
       "options": ["せっぴ", "せつび", "せいび", "ぜつび"],
+      "optionsHiragana": ["せっぴ", "せつび", "せいび", "ぜつび"],
       "correct": 1
     },
     {
       "question": "父が短気なの（　）、母の方は気が長い。",
+      "questionEn": "My father is short-tempered, whereas my mother is patient.",
       "options": ["において", "に対して", "について", "によって"],
+      "optionsHiragana": ["において", "にたいして", "について", "によって"],
       "correct": 1
     },
     {
       "question": "1時間（　）ありますよ。",
+      "questionEn": "We have about an hour.",
       "options": ["ごろなら", "ごろでも", "ぐらいでも", "ぐらいなら"],
+      "optionsHiragana": ["ごろなら", "ごろでも", "ぐらいでも", "ぐらいなら"],
       "correct": 3
     },
     {
       "question": "この薬は よく ききます。",
+      "questionEn": "This medicine works well.",
       "options": ["利きます", "効きます", "聴きます", "訊きます"],
+      "optionsHiragana": ["ききます", "ききます", "ききます", "ききます"],
       "correct": 1
     },
     {
       "question": "先生（　）教えていただいた本です。",
+      "questionEn": "This is a book my teacher taught me.",
       "options": ["に", "を", "へ", "で"],
+      "optionsHiragana": ["に", "を", "へ", "で"],
       "correct": 0
     }
   ],
   "N2": [
     {
       "question": "クラスの 代表 に選ばれた。",
+      "questionEn": "I was chosen as the class representative.",
       "options": ["たいひょう", "だいひよ", "だいひょう", "たいひょ"],
+      "optionsHiragana": ["たいひょう", "だいひよ", "だいひょう", "たいひょ"],
       "correct": 2
     },
     {
       "question": "日本語能力試験の結果は、来週（　）。",
+      "questionEn": "The results of the JLPT will be announced next week.",
       "options": [
         "発表されます",
         "発表させます",
         "発表いたします",
         "発表なされます"
       ],
+      "optionsHiragana": [
+        "はっぴょうされます",
+        "はっぴょうさせます",
+        "はっぴょういたします",
+        "はっぴょうなされます"
+      ],
       "correct": 0
     },
     {
       "question": "どんなに（　）、最後まであきらめない。",
+      "questionEn": "No matter how tough it is, I won't give up until the end.",
       "options": ["つらくても", "つらいなら", "つらいのに", "つらいから"],
+      "optionsHiragana": ["つらくても", "つらいなら", "つらいのに", "つらいから"],
       "correct": 0
     },
     {
       "question": "その意見は 妥当 だと思う。",
+      "questionEn": "I think that opinion is valid.",
       "options": ["だとう", "てきとう", "だいとう", "だっとう"],
+      "optionsHiragana": ["だとう", "てきとう", "だいとう", "だっとう"],
       "correct": 0
     },
     {
       "question": "この箱を ほぞん してください。",
+      "questionEn": "Please store this box.",
       "options": ["保存", "保全", "保育", "保持"],
+      "optionsHiragana": ["ほぞん", "ほぜん", "ほいく", "ほじ"],
       "correct": 0
     }
   ],
   "N1": [
     {
       "question": "彼の態度は、非常に 露骨 だった。",
+      "questionEn": "His attitude was extremely blatant.",
       "options": ["ろっこつ", "ろこつ", "ろっこう", "ろこう"],
+      "optionsHiragana": ["ろっこつ", "ろこつ", "ろっこう", "ろこう"],
       "correct": 1
     },
     {
       "question": "彼が有能である（　）、誰もが認めている。",
+      "questionEn": "Everyone acknowledges that he is competent.",
       "options": ["ことは", "ことを", "ことに", "ことも"],
+      "optionsHiragana": ["ことは", "ことを", "ことに", "ことも"],
       "correct": 0
     },
     {
       "question": "犯人は（　）のうえ、警察に自首した。",
+      "questionEn": "The culprit, after ( ), turned himself in to the police.",
       "options": ["熟考", "反省", "後悔", "考慮"],
+      "optionsHiragana": ["じゅっこう", "はんせい", "こうかい", "こうりょ"],
       "correct": 1
     },
     {
       "question": "事態は 切実 だ。",
+      "questionEn": "The situation is urgent.",
       "options": ["せつじつ", "さいじつ", "きれじつ", "せいじつ"],
+      "optionsHiragana": ["せつじつ", "さいじつ", "きれじつ", "せいじつ"],
       "correct": 0
     },
     {
       "question": "彼は 巧妙 な手口で人をだました。",
+      "questionEn": "He deceived people with a clever scheme.",
       "options": ["こうみょう", "きょうみょう", "こうみょ", "きょみょう"],
+      "optionsHiragana": ["こうみょう", "きょうみょう", "こうみょ", "きょみょう"],
       "correct": 0
     }
   ]
