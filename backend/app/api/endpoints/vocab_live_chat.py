@@ -79,6 +79,8 @@ async def start_chat_session(
             payload = {}
 
         raw_vocab = payload.get("vocab", []) if isinstance(payload, dict) else []
+        print(f"Raw vocab: {raw_vocab}")
+        
         target_words: list[str] = []
         if isinstance(raw_vocab, list):
             for entry in raw_vocab:

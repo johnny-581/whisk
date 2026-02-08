@@ -13,8 +13,7 @@ export const ConnectionButton = ({
 }: ConnectionButtonProps) => {
   return (
     <Button
-      size="lg"
-      variant={isConnected ? "destructive" : "default"}
+      variant={isConnected ? "primary" : "secondary"}
       onClick={onClick}
       disabled={isConnecting}
     >
