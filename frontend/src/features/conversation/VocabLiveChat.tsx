@@ -34,6 +34,9 @@ export interface VocabLiveChatProps {
 export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
   const videoId = conversationId!;
 
+  // Loading state for initial page load
+  const [isLoading, setIsLoading] = useState(true);
+
   // Fetch vocabulary data and user level
   const { vocabs, error: vocabError } = useVocab({ videoId });
 
@@ -41,6 +44,15 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
   const [connectParams, setConnectParams] = useState<APIRequest>(
     TRANSPORT_CONFIG[DEFAULT_TRANSPORT]
   );
+
+  // Show loading screen for 2 seconds on initial load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 6000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const baseConfig = TRANSPORT_CONFIG[DEFAULT_TRANSPORT];
@@ -98,6 +110,17 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
             {vocabError}
           </div>
         )}
+
+        {/* Loading overlay */}
+        {isLoading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-mint-50/80 backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-4">
+              <p className="text-neutral-800 text-2xl font-bold">
+                Hold on tight while we prepare your conversation...
+              </p>
+            </div>
+          </div>
+        )}
       </FullScreenContainer>
     </ThemeProvider>
   );
@@ -139,6 +162,15 @@ const VocabLiveChatContent = ({
     allWordsCompleted: allCompleted,
   });
 
+  // Auto-connect when component mounts
+  useEffect(() => {
+    setTimeout(() => {
+      if (!isConnected && !isConnecting && handleConnect) {
+        handleConnect();
+      }
+    }, 300);
+  }, []); // Only run once on mount to auto-connect
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       {/* Background image - fills entire page while preserving aspect ratio */}
@@ -160,13 +192,13 @@ const VocabLiveChatContent = ({
         </aside>
 
         {/* Connect button - top right */}
-        <div className="absolute left-8 top-8">
+        {/* <div className="absolute left-8 top-8">
           <ConnectionButton
             isConnected={isConnected}
             isConnecting={isConnecting}
             onClick={handleButtonClick}
           />
-        </div>
+        </div> */}
 
         {/* Agent speech bubble */}
         <div className="absolute top-30 left-2/3 translate-x-[-10%]">
