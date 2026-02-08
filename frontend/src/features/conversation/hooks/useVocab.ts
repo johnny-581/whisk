@@ -79,33 +79,33 @@ export const useVocab = ({ videoId }: UseVocabParams): UseVocabReturn => {
     };
   }, [videoId]);
 
-  // return { vocabs, isLoading, error };
+  return { vocabs, isLoading, error };
 
-  return useMemo(
-    () => ({
-      vocabs: [
-        {
-          id: "1",
-          japanese_vocab: "Apple",
-          pronunciation: "ringo",
-          english_translation: "Apple",
-          timestamp: "0:45",
-          jlpt_level: 5,
-          checked: false,
-        },
-        {
-          id: "2",
-          japanese_vocab: "Student",
-          pronunciation: "gakusei",
-          english_translation: "Student",
-          timestamp: "1:12",
-          jlpt_level: 5,
-          checked: false,
-        },
-      ],
-      isLoading: false,
-      error: null,
-    }),
-    [] // Empty dependency array since this is static mock data
-  );
+  // return useMemo(
+  //   () => ({
+  //     vocabs: [
+  //       {
+  //         id: "1",
+  //         japanese_vocab: "Apple",
+  //         pronunciation: "ringo",
+  //         english_translation: "Apple",
+  //         timestamp: "0:45",
+  //         jlpt_level: 5,
+  //         checked: false,
+  //       },
+  //       {
+  //         id: "2",
+  //         japanese_vocab: "Student",
+  //         pronunciation: "gakusei",
+  //         english_translation: "Student",
+  //         timestamp: "1:12",
+  //         jlpt_level: 5,
+  //         checked: false,
+  //       },
+  //     ],
+  //     isLoading: false,
+  //     error: null,
+  //   }),
+  //   [] // Empty dependency array since this is static mock data
+  // );
 };

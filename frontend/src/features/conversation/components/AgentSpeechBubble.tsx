@@ -45,10 +45,14 @@ export const AgentSpeechBubble = ({ className }: AgentSpeechBubbleProps) => {
 
   const currentMessage = useMemo(() => {
     if (botLines.length === 0) {
-      return "Say the vocab words in a sentence. I will guide you along the way.";
+      return null;
     }
     return botLines[botLines.length - 1];
   }, [botLines]);
+
+  if (!currentMessage) {
+    return null;
+  }
 
   return (
     <div className={className}>

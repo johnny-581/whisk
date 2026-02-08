@@ -15,6 +15,7 @@ export const UserTranscriptBox = ({ className }: UserTranscriptBoxProps) => {
   const [currentTranscript, setCurrentTranscript] = useState<string>("");
   const [shouldClearOnNextSpeak, setShouldClearOnNextSpeak] =
     useState<boolean>(true);
+  const [botHasStoppedOnce, setBotHasStoppedOnce] = useState<boolean>(false);
 
   const handleUserTranscript = useCallback((data: UserTranscriptData) => {
     if (!data.text) return;
@@ -36,18 +37,30 @@ export const UserTranscriptBox = ({ className }: UserTranscriptBoxProps) => {
     console.log("Bot stopped speaking");
     // Set flag so transcript will be cleared on next user speech
     setShouldClearOnNextSpeak(true);
+    // Mark that bot has stopped speaking at least once
+    setBotHasStoppedOnce(true);
   }, []);
 
   useRTVIClientEvent(RTVIEvent.UserTranscript, handleUserTranscript);
   useRTVIClientEvent(RTVIEvent.UserStartedSpeaking, handleUserStartedSpeaking);
   useRTVIClientEvent(RTVIEvent.BotStoppedSpeaking, handleBotStoppedSpeaking);
 
+  if (!botHasStoppedOnce) {
+    return null;
+  }
+
   return (
     <div className={className}>
       <div className="rounded-3xl bg-white/90 px-8 py-6 shadow-lg backdrop-blur-sm">
-        <p className="text-xl leading-relaxed text-slate-800">
-          {currentTranscript || ""}
-        </p>
+        <div className="text-xl leading-relaxed text-slate-800">
+          {currentTranscript ? (
+            currentTranscript
+          ) : (
+            <p className="text-xl leading-relaxed text-neutral-800/50 text-center">
+              You&apos;re up next!
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

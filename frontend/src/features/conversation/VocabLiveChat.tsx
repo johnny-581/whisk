@@ -162,14 +162,28 @@ const VocabLiveChatContent = ({
     allWordsCompleted: allCompleted,
   });
 
-  // Auto-connect when component mounts
+  // Auto-connect when component mounts and vocabs are loaded
   useEffect(() => {
-    setTimeout(() => {
-      if (!isConnected && !isConnecting && handleConnect) {
-        handleConnect();
-      }
-    }, 300);
-  }, []); // Only run once on mount to auto-connect
+    if (
+      initialWords.length > 0 &&
+      !isConnected &&
+      !isConnecting &&
+      handleConnect
+    ) {
+      const timer = setTimeout(() => {
+        console.log("Auto-connecting with vocabs:", initialWords.length);
+        handleButtonClick();
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [
+    initialWords,
+    isConnected,
+    isConnecting,
+    handleConnect,
+    handleButtonClick,
+  ]);
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
