@@ -13,25 +13,34 @@ interface UserTranscriptBoxProps {
 
 export const UserTranscriptBox = ({ className }: UserTranscriptBoxProps) => {
   const [currentTranscript, setCurrentTranscript] = useState<string>("");
+  const [shouldClearOnNextSpeak, setShouldClearOnNextSpeak] =
+    useState<boolean>(true);
 
   const handleUserTranscript = useCallback((data: UserTranscriptData) => {
     if (!data.text) return;
-    setCurrentTranscript(data.text);
+    // The RTVI UserTranscript event provides chunks
+    // so we append them to build the full transcript
+    setCurrentTranscript((prev) => prev + " " + data.text);
   }, []);
 
   const handleUserStartedSpeaking = useCallback(() => {
-    // Clear transcript at the start of each turn
-    setCurrentTranscript("");
-  }, []);
+    console.log("User started speaking");
+    // Only clear transcript the first time user speaks after bot stopped speaking
+    if (shouldClearOnNextSpeak) {
+      setCurrentTranscript("");
+      setShouldClearOnNextSpeak(false);
+    }
+  }, [shouldClearOnNextSpeak]);
 
-  // const handleBotStartedSpeaking = useCallback(() => {
-  //   // Clear transcript when bot starts speaking (new turn)
-  //   setCurrentTranscript("");
-  // }, []);
+  const handleBotStoppedSpeaking = useCallback(() => {
+    console.log("Bot stopped speaking");
+    // Set flag so transcript will be cleared on next user speech
+    setShouldClearOnNextSpeak(true);
+  }, []);
 
   useRTVIClientEvent(RTVIEvent.UserTranscript, handleUserTranscript);
   useRTVIClientEvent(RTVIEvent.UserStartedSpeaking, handleUserStartedSpeaking);
-  // useRTVIClientEvent(RTVIEvent.BotStartedSpeaking, handleBotStartedSpeaking);
+  useRTVIClientEvent(RTVIEvent.BotStoppedSpeaking, handleBotStoppedSpeaking);
 
   return (
     <div className={className}>
