@@ -1,8 +1,8 @@
+# whisk
+
 Our Project for the Gemini Hackathon!
 
 Note: Please refer to frontend and backend READMEs for instructions on how to run
-
-# Resources
 
 ## Gemini Hackathon Devpost
 
