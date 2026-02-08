@@ -27,7 +27,11 @@ export default function DashboardLayout({
 
         if (!res.ok) throw new Error("Failed to fetch videos");
         const data = await res.json();
-        setVideos(Array.isArray(data) ? data : []);
+        const videosArray = Array.isArray(data) ? data : [];
+        setVideos(videosArray);
+        if (videosArray.length > 0) {
+            router.push(`/videos/${videosArray[0].video_id}`);
+        }
       } catch (err) {
         console.error(err);
       }
@@ -46,7 +50,7 @@ export default function DashboardLayout({
             href="/"
             className="text-emerald-900 font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
           >
-            LearnJapanese
+            whisk
           </Link>
         </div>
 
