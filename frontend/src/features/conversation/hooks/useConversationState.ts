@@ -2,10 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRTVIClientEvent } from "@pipecat-ai/client-react";
 import { RTVIEvent } from "@pipecat-ai/client-js";
-import type { RTVIClient } from "@pipecat-ai/client-js";
+import type { PipecatClient } from "@pipecat-ai/client-js";
 
 interface UseConversationStateParams {
-  client: RTVIClient | null;
+  client: PipecatClient | null;
   handleConnect?: () => void;
   handleDisconnect?: () => void;
   videoId: string;
