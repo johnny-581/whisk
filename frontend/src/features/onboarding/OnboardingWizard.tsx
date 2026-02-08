@@ -44,6 +44,7 @@ export function OnboardingWizard() {
   };
 
   const handleComplete = () => {
+    
     router.push("/dashboard");
   };
 
@@ -94,7 +95,7 @@ export function OnboardingWizard() {
 
       <header className="p-6 shrink-0">
         <div className="text-emerald-900 font-bold text-xl tracking-tight">
-          LearnJapanese
+          whisk
         </div>
       </header>
 
@@ -119,7 +120,7 @@ export function OnboardingWizard() {
               <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <h1 className="text-4xl font-black text-emerald-900 leading-tight">
                   Welcome to <br />
-                  LearnJapanese!
+                  whisk!
                 </h1>
                 <p className="text-lg text-emerald-800/70 leading-relaxed font-medium">
                   The most effective way to master Japanese through immersion.

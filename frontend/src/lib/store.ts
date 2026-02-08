@@ -21,3 +21,42 @@ export const useUserStore = create<UserState>()(
     }
   )
 );
+
+export interface Video {
+  id: string;
+  video_id: string;
+  title: string;
+}
+
+interface VideosState {
+  videos: Video[];
+  setVideos: (videos: Video[]) => void;
+  addVideo: (video: Video) => void;
+  upsertVideo: (video: Video) => void;
+  clearVideos: () => void;
+}
+
+export const useVideosStore = create<VideosState>((set) => ({
+  videos: [],
+  setVideos: (videos) => set({ videos }),
+
+  addVideo: (video) =>
+    set((state) => ({
+      videos: [video, ...state.videos],
+    })),
+
+  // Prevent duplicates if you save same video twice
+  upsertVideo: (video) =>
+    set((state) => {
+      const idx = state.videos.findIndex((v) => v.video_id === video.video_id);
+      if (idx === -1) return { videos: [video, ...state.videos] };
+      const copy = [...state.videos];
+      copy[idx] = { ...copy[idx], ...video };
+      return { videos: copy };
+    }),
+
+  clearVideos: () => set({ videos: [] }),
+}));
+
+
+

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tag } from "@/components/ui/tag";
 import { useEffect, useState } from "react";
+import { useUserStore, useVideosStore } from "@/lib/store";
 
 interface VideoDetailProps {
   videoId: string;
@@ -43,6 +44,9 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
   const [info, setInfo] = useState<VideoInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const jlptLevel = useUserStore((state) => state.jlptLevel);
+  const upsertVideo = useVideosStore((s) => s.upsertVideo);
+
 
   useEffect(() => {
     const fetchVideoInfo = async () => {
@@ -75,7 +79,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             video_url: `${YOUTUBE_WATCH_URL}${videoId}`,
-            user_level: 4,
+            user_level: jlptLevel,
           }),
         });
 
@@ -95,12 +99,21 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
           vocab: Array.isArray(data.vocab) ? data.vocab : [],
         });
 
-        // 3️⃣ (Optional but recommended) Save to DB
-        await fetch("/api/videos", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+        upsertVideo({
+            id: data.id ?? videoId,
+            video_id: data.video_id ?? videoId,
+            title: data.title ?? "Untitled video",
         });
+
+        await fetch("/api/videos", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        });
+        
+        
+  
+  
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
       } finally {

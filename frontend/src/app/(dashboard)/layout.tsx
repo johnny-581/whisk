@@ -2,22 +2,19 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-interface Video {
-  id: string;
-  video_id: string;
-  title: string;
-}
+import { useVideosStore } from "@/lib/store";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [videos, setVideos] = useState<Video[]>([]);
   const router = useRouter();
+
+  const videos = useVideosStore((s) => s.videos);
+  const setVideos = useVideosStore((s) => s.setVideos);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -25,19 +22,23 @@ export default function DashboardLayout({
         const res = await fetch("/api/videos", {
           method: "GET",
           headers: { "Content-Type": "application/json" },
+          cache: "no-store",
         });
-        console.log(res);
-        if (!res.ok) throw new Error("Failed to fetch videos");
 
+        if (!res.ok) throw new Error("Failed to fetch videos");
         const data = await res.json();
-        setVideos(data);
+        const videosArray = Array.isArray(data) ? data : [];
+        setVideos(videosArray);
+        if (videosArray.length > 0) {
+            router.push(`/videos/${videosArray[0].video_id}`);
+        }
       } catch (err) {
         console.error(err);
       }
     };
 
     fetchVideos();
-  }, []);
+  }, [setVideos]);
 
   return (
     <div className="min-h-screen flex">
@@ -49,7 +50,7 @@ export default function DashboardLayout({
             href="/"
             className="text-emerald-900 font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
           >
-            LearnJapanese
+            whisk
           </Link>
         </div>
 
@@ -58,14 +59,6 @@ export default function DashboardLayout({
             <Button className="w-full rounded-xl h-11 font-bold bg-emerald-800 hover:bg-emerald-900 text-white">
               <span className="text-lg leading-none">+</span>
               New video
-            </Button>
-          </Link>
-          <Link href="/conversations/123">
-            <Button
-              variant="secondary"
-              className="w-full border-emerald-100 text-emerald-900 hover:bg-emerald-50 rounded-xl h-11 font-bold"
-            >
-              Conversations (for demo)
             </Button>
           </Link>
 
@@ -83,16 +76,14 @@ export default function DashboardLayout({
               ) : (
                 videos.map((video) => (
                   <button
-                    key={video.id}
+                    key={video.id ?? video.video_id}
                     onClick={() => router.push(`/videos/${video.video_id}`)}
                     className="w-full text-left rounded-2xl bg-emerald-50 hover:bg-emerald-100 transition-colors p-4 shadow-sm"
                   >
-                    {/* Title */}
                     <p className="font-medium text-emerald-900 truncate">
                       {video.title}
                     </p>
 
-                    {/* Progress bar mock */}
                     <div className="mt-3 h-1.5 w-full bg-emerald-100 rounded-full overflow-hidden">
                       <div className="h-full w-2/3 bg-emerald-300 rounded-full" />
                     </div>
