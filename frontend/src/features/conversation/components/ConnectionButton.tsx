@@ -16,6 +16,7 @@ export const ConnectionButton = ({
       variant={isConnected ? "primary" : "secondary"}
       onClick={onClick}
       disabled={isConnecting}
+      className="bg-white text-slate-800 hover:bg-white/80"
     >
       {isConnecting ? (
         <>
