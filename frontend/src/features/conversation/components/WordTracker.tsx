@@ -4,11 +4,11 @@ interface Word {
   active: boolean;
 }
 
-interface WordTrackerProps {
+interface VocabTrackerProps {
   words: Word[];
 }
 
-export const WordTracker = ({ words }: WordTrackerProps) => {
+export const VocabTracker = ({ words }: VocabTrackerProps) => {
   return (
     <div className="rounded-[24px] border border-white/60 bg-white/80 p-6 shadow-2xl backdrop-blur">
       <div className="text-3xl font-bold text-slate-900">Vocabs</div>
