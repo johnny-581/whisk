@@ -8,7 +8,6 @@ import {
   ErrorCard,
   FullScreenContainer,
   PipecatAppBase,
-  SpinLoader,
 } from "@pipecat-ai/voice-ui-kit";
 
 import { VocabLiveChatContent } from "./components/VocabLiveChatContent";
@@ -139,11 +138,6 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
     const loadVocab = async () => {
       setIsInitializing(true);
       setInitError(null);
-      const delayMs = 5000 + Math.floor(Math.random() * 5000);
-      const delayPromise = new Promise((resolve) =>
-        setTimeout(resolve, delayMs)
-      );
-
       const level = normalizeLevel(userLevel);
       try {
         const res = await fetch(`${vocabEndpoint}?level=${level}`, {
@@ -194,7 +188,6 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
           );
         }
       } finally {
-        await delayPromise;
         if (isMounted) {
           setIsInitializing(false);
         }
@@ -244,11 +237,11 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
             error,
           }: PipecatBaseChildProps) =>
             !client ? (
-              <SpinLoader />
+              <div className="flex min-h-screen w-full items-center justify-center bg-[#0f1f1a] text-white/80">
+                <p>Preparing conversation...</p>
+              </div>
             ) : error ? (
               <ErrorCard>{error}</ErrorCard>
-            ) : isInitializing ? (
-              <SpinLoader />
             ) : (
               <VocabLiveChatContent
                 client={client}

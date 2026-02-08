@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -10,7 +10,6 @@ import { useRTVIClientEvent } from "@pipecat-ai/client-react";
 import { RTVIEvent } from "@pipecat-ai/client-js";
 
 import { AgentSpeechBubble } from "./AgentSpeechBubble";
-import { ConnectionButton } from "./ConnectionButton";
 import { ExitModal } from "./ExitModal";
 import { WordTracker } from "./WordTracker";
 import conversationBg from "@/assets/conversation-bg.png";
@@ -61,11 +60,20 @@ export const VocabLiveChatContent = ({
   const [showExitModal, setShowExitModal] = useState(false);
   const [pendingExit, setPendingExit] = useState(false);
   const router = useRouter();
+  const hasAttemptedConnect = useRef(false);
 
   // Initialize devices on mount
   useEffect(() => {
     client?.initDevices();
   }, [client]);
+
+  // Auto-connect to voice session once on startup (ref prevents re-run when handleConnect identity changes)
+  useEffect(() => {
+    if (hasAttemptedConnect.current) return;
+    hasAttemptedConnect.current = true;
+    setIsConnecting(true);
+    handleConnect?.();
+  }, [handleConnect]);
 
   useEffect(() => {
     setWords(initialWords.map((w) => ({ ...w, active: true })));
@@ -201,15 +209,6 @@ export const VocabLiveChatContent = ({
     []
   );
 
-  const handleButtonClick = useCallback(() => {
-    if (isConnected) {
-      handleDisconnect?.();
-    } else {
-      setIsConnecting(true);
-      handleConnect?.();
-    }
-  }, [isConnected, handleConnect, handleDisconnect]);
-
   // RTVI Event Subscriptions
   useRTVIClientEvent(RTVIEvent.ServerMessage, handleMessage);
   useRTVIClientEvent(RTVIEvent.UserTranscript, handleUserTranscript);
@@ -256,11 +255,9 @@ export const VocabLiveChatContent = ({
 
           <div className="absolute bottom-10 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/70 bg-white/90 px-6 py-3 shadow-xl backdrop-blur">
             <UserAudioControl size="lg" />
-            <ConnectionButton
-              isConnected={isConnected}
-              isConnecting={isConnecting}
-              onClick={handleButtonClick}
-            />
+            {isConnecting && (
+              <span className="text-sm text-slate-600">Connecting...</span>
+            )}
           </div>
         </section>
       </div>
