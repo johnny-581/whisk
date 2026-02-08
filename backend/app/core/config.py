@@ -37,7 +37,7 @@ class Settings:
     CORS_ALLOW_HEADERS: list[str] = ["*"]
     
     # Gemini Configuration
-    GEMINI_VOICE_ID: str = "Charon"
+    GEMINI_VOICE_ID: str = "Achernar"
     
     # VAD Configuration
     VAD_STOP_SECS: float = 0.2
