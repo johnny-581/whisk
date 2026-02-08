@@ -30,7 +30,7 @@ export default function DashboardLayout({
         const videosArray = Array.isArray(data) ? data : [];
         setVideos(videosArray);
         if (videosArray.length > 0) {
-            router.push(`/videos/${videosArray[0].video_id}`);
+          router.push(`/videos/${videosArray[0].video_id}`);
         }
       } catch (err) {
         console.error(err);
@@ -96,9 +96,7 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main */}
-      <main className="flex-1 overflow-auto bg-background p-12">
-        {children}
-      </main>
+      <main className="flex-1 overflow-auto bg-mint-50 p-12">{children}</main>
     </div>
   );
 }
