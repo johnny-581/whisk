@@ -1,20 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRTVIClientEvent } from "@pipecat-ai/client-react";
 import { RTVIEvent } from "@pipecat-ai/client-js";
-import type {
-  VocabWord,
-  ServerMessage,
-  UserTranscriptData,
-  Word,
-} from "../types";
+import type { Vocab, ServerMessage, UserTranscriptData } from "../types";
 import { isWordMatch } from "../utils/wordMatching";
 
 interface UseWordTrackingParams {
-  initialWords: VocabWord[];
+  initialWords: Vocab[];
 }
 
 interface UseWordTrackingReturn {
-  words: Word[];
+  words: Vocab[];
   allCompleted: boolean;
 }
 
@@ -24,23 +19,21 @@ interface UseWordTrackingReturn {
 export const useWordTracking = ({
   initialWords,
 }: UseWordTrackingParams): UseWordTrackingReturn => {
-  const [words, setWords] = useState<Word[]>(() =>
-    initialWords.map((w) => ({ ...w, active: true }))
-  );
+  const [words, setWords] = useState<Vocab[]>(initialWords);
 
   // Update words when initialWords change
   useEffect(() => {
-    setWords(initialWords.map((w) => ({ ...w, active: true })));
+    setWords(initialWords);
   }, [initialWords]);
 
   // Handle server messages for word detection
   const handleMessage = useCallback((message: ServerMessage) => {
     if (message.type === "word_detected" && message.payload) {
       const detectedWord = message.payload;
-      setWords((prev: Word[]) =>
+      setWords((prev: Vocab[]) =>
         prev.map((w) =>
-          w.word.toLowerCase() === detectedWord.toLowerCase()
-            ? { ...w, active: false }
+          w.japanese_vocab.toLowerCase() === detectedWord.toLowerCase()
+            ? { ...w, checked: true }
             : w
         )
       );
@@ -61,13 +54,13 @@ export const useWordTracking = ({
 
     setWords((prev) =>
       prev.map((entry) => {
-        if (!entry.active) return entry;
+        if (entry.checked) return entry;
 
-        const target = entry.word.trim();
+        const target = entry.japanese_vocab.trim();
         if (!target) return entry;
 
         const matched = isWordMatch(transcript, target);
-        return matched ? { ...entry, active: false } : entry;
+        return matched ? { ...entry, checked: true } : entry;
       })
     );
   }, []);
@@ -76,7 +69,7 @@ export const useWordTracking = ({
   useRTVIClientEvent(RTVIEvent.ServerMessage, handleMessage);
   useRTVIClientEvent(RTVIEvent.UserTranscript, handleUserTranscript);
 
-  const allCompleted = words.length > 0 && words.every((w) => !w.active);
+  const allCompleted = words.length > 0 && words.every((w) => w.checked);
 
   return { words, allCompleted };
 };

@@ -144,11 +144,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
           ))}
 
           <Link href={`/conversations/${videoId}`} className="ml-auto">
-            <Button
-              variant="secondary"
-              className="rounded-xl border-emerald-600 text-emerald-700 hover:bg-emerald-50"
-              icon={EqualizerIcon}
-            >
+            <Button variant="secondary" icon={EqualizerIcon}>
               AI Practice
             </Button>
           </Link>

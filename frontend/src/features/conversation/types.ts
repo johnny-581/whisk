@@ -1,14 +1,12 @@
 // Vocabulary word structure
-export interface VocabWord {
-  id?: string;
-  word: string;
-  difficulty?: string;
-  start_time?: string;
-}
-
-// Props for main VocabLiveChat component
-export interface VocabLiveChatProps {
-  conversationId?: string;
+export interface Vocab {
+  id: string;
+  japanese_vocab: string;
+  pronunciation: string;
+  english_translation: string;
+  timestamp: string;
+  jlpt_level: number;
+  checked: boolean;
 }
 
 // Server message structure
@@ -23,9 +21,4 @@ export interface UserTranscriptData {
   final?: boolean;
   timestamp: string;
   user_id: string;
-}
-
-// Word structure with active state
-export interface Word extends VocabWord {
-  active: boolean;
 }

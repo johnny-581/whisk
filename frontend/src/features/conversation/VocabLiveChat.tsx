@@ -18,18 +18,23 @@ import { ExitModal } from "./components/ExitModal";
 import { VocabTracker } from "./components/WordTracker";
 import conversationBg from "@/assets/conversation-bg.png";
 import { DEFAULT_TRANSPORT, TRANSPORT_CONFIG } from "./config";
-import type { VocabLiveChatProps, VocabWord } from "./types";
-import { useVocabData, useWordTracking, useConversationState } from "./hooks";
+import type { Vocab } from "./types";
+import { useVocab, useWordTracking, useConversationState } from "./hooks";
+
+// Props for main VocabLiveChat component
+export interface VocabLiveChatProps {
+  conversationId?: string;
+}
 
 /**
  * Main VocabLiveChat component
  * Manages conversation setup, UI, and provides Pipecat client context
  */
 export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
-  const videoId = conversationId ?? "default";
+  const videoId = conversationId!;
 
   // Fetch vocabulary data and user level
-  const { words, error: vocabError, userLevel } = useVocabData({ videoId });
+  const { vocabs, error: vocabError } = useVocab({ videoId });
 
   // Build connection parameters
   const [connectParams, setConnectParams] = useState<APIRequest>(
@@ -45,17 +50,17 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
       ...baseConfig,
       requestData: {
         ...baseRequestData,
-        videoId,
-        userLevel,
-        vocab: words.map(({ id, word, difficulty, start_time }: VocabWord) => ({
-          id: id ?? null,
-          word,
-          difficulty: difficulty ?? null,
-          start_time: start_time ?? null,
+        vocab: vocabs.map((word: Vocab) => ({
+          id: word.id,
+          japanese_vocab: word.japanese_vocab,
+          pronunciation: word.pronunciation,
+          english_translation: word.english_translation,
+          timestamp: word.timestamp,
+          jlpt_level: word.jlpt_level,
         })),
       },
     });
-  }, [words, userLevel, videoId]);
+  }, [vocabs]);
 
   return (
     <ThemeProvider defaultTheme="terminal" disableStorage>
@@ -81,7 +86,7 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
                 client={client}
                 handleConnect={handleConnect}
                 handleDisconnect={handleDisconnect}
-                initialWords={words}
+                initialWords={vocabs}
                 videoId={videoId}
               />
             )
@@ -111,7 +116,7 @@ const VocabLiveChatContent = ({
   client: PipecatBaseChildProps["client"];
   handleConnect: PipecatBaseChildProps["handleConnect"];
   handleDisconnect: PipecatBaseChildProps["handleDisconnect"];
-  initialWords: VocabWord[];
+  initialWords: Vocab[];
   videoId: string;
 }) => {
   // Track word completion state
@@ -157,7 +162,7 @@ const VocabLiveChatContent = ({
           </div>
 
           <div className="absolute bottom-10 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/70 bg-white/90 px-6 py-3 shadow-xl backdrop-blur">
-            <UserAudioControl size="lg" />
+            {/* <UserAudioControl size="lg" /> */}
             <ConnectionButton
               isConnected={isConnected}
               isConnecting={isConnecting}

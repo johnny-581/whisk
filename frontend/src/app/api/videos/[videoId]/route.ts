@@ -9,10 +9,10 @@ const BASE_URL = process.env.SERVER_BASE_URL!;
  */
 export async function GET(
   req: Request,
-  { params }: { params: { videoId: string } }
+  { params }: { params: Promise<{ videoId: string }> }
 ) {
   try {
-    const { videoId } = params;
+    const { videoId } = await params;
 
     const result = await fetch(`${BASE_URL}/videos/${videoId}`, {
       method: "GET",
@@ -43,10 +43,10 @@ export async function GET(
  */
 export async function DELETE(
   req: Request,
-  { params }: { params: { videoId: string } }
+  { params }: { params: Promise<{ videoId: string }> }
 ) {
   try {
-    const { videoId } = params;
+    const { videoId } = await params;
 
     const result = await fetch(`${BASE_URL}/videos/${videoId}`, {
       method: "DELETE",
