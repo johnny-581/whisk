@@ -15,13 +15,15 @@ from app.services.daily import create_daily_room, get_daily_token
 router = APIRouter()
 
 
-def _spawn_bot(room_url: str, token: str, target_words: list[str]) -> None:
+def _spawn_bot(room_url: str, token: str, target_words: list[str], summary: str = "") -> None:
     """
     Spawn the bot process as a subprocess.
     
     Args:
         room_url: The Daily.co room URL
         token: The authentication token for the room
+        target_words: List of vocabulary words to practice
+        summary: Video summary to provide context for the conversation
         
     Raises:
         BotSpawnError: If bot spawning fails
@@ -42,6 +44,8 @@ def _spawn_bot(room_url: str, token: str, target_words: list[str]) -> None:
         ]
         if target_words:
             cmd.extend(["-w", json.dumps(target_words, ensure_ascii=False)])
+        if summary:
+            cmd.extend(["-s", summary])
 
         subprocess.Popen(
             cmd,
@@ -94,6 +98,10 @@ async def start_chat_session(
                     target_words.append(word)
         
         print(f"Target words changed: {target_words}")
+        
+        # Extract video summary from payload
+        summary = payload.get("summary", "") if isinstance(payload, dict) else ""
+        print(f"Video summary: {summary}")
 
         # Step 1: Create a new Daily Room
         logger.info("Step 1: Creating Daily room...")
@@ -109,7 +117,7 @@ async def start_chat_session(
 
         # Step 3: Spawn the bot process (background to reduce latency)
         logger.info("Step 3: Queueing bot process spawn...")
-        background_tasks.add_task(_spawn_bot, room_url, bot_token, target_words)
+        background_tasks.add_task(_spawn_bot, room_url, bot_token, target_words, summary)
         logger.info("Bot process queued")
 
         # Step 4: Return the room URL to the client

@@ -83,15 +83,18 @@ def _normalize_words(words: list[str]) -> list[str]:
     return cleaned
 
 
-async def run_bot(room_url: str, token: str, target_words: list[str]) -> None:
+async def run_bot(room_url: str, token: str, target_words: list[str], video_summary: str = "") -> None:
     """
     Run the Gemini Live Chat bot in a Daily.co room.
     
     Args:
         room_url: The Daily.co room URL to join
         token: The authentication token for the room
+        target_words: List of vocabulary words to practice
+        video_summary: Summary of the video to provide context for the conversation
     """
     logger.info(f"Starting bot for room: {room_url}")
+    logger.info(f"Video summary: {video_summary}")
     
     # Initialize state - track remaining words
     normalized_targets = _normalize_words(target_words) or DEFAULT_TARGET_WORDS
@@ -164,7 +167,7 @@ async def run_bot(room_url: str, token: str, target_words: list[str]) -> None:
 
     llm.register_function("mark_word", mark_word_handler)
 
-    messages = get_vocab_chatbot_prompt(normalized_targets)
+    messages = get_vocab_chatbot_prompt(normalized_targets, video_summary)
 
     context = LLMContext(messages)
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
@@ -234,6 +237,14 @@ if __name__ == "__main__":
         required=False,
         help="JSON array of target words",
     )
+    parser.add_argument(
+        "-s",
+        "--summary",
+        type=str,
+        required=False,
+        default="",
+        help="Video summary for conversation context",
+    )
     args = parser.parse_args()
 
     parsed_words: list[str] = []
@@ -245,4 +256,4 @@ if __name__ == "__main__":
         except json.JSONDecodeError:
             parsed_words = []
 
-    asyncio.run(run_bot(args.url, args.token, parsed_words or DEFAULT_TARGET_WORDS))
+    asyncio.run(run_bot(args.url, args.token, parsed_words or DEFAULT_TARGET_WORDS, args.summary))

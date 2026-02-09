@@ -8,6 +8,7 @@ interface UseVocabParams {
 
 interface UseVocabReturn {
   vocabs: Vocab[];
+  summary: string;
   isLoading: boolean;
   error: string | null;
 }
@@ -18,6 +19,7 @@ interface UseVocabReturn {
  */
 export const useVocab = ({ videoId }: UseVocabParams): UseVocabReturn => {
   const [vocabs, setVocabs] = useState<Vocab[]>([]);
+  const [summary, setSummary] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,6 +43,7 @@ export const useVocab = ({ videoId }: UseVocabParams): UseVocabReturn => {
 
         const data = await res.json();
         const vocab = Array.isArray(data?.vocab) ? data.vocab : [];
+        const videoSummary = data?.summary || "";
 
         // Transform API response to match Vocab type
         const transformedWords: Vocab[] = vocab.map((entry: Vocab) => ({
@@ -58,11 +61,13 @@ export const useVocab = ({ videoId }: UseVocabParams): UseVocabReturn => {
 
         if (isMounted) {
           setVocabs(randomVocabs);
+          setSummary(videoSummary);
         }
       } catch (err) {
         if (isMounted) {
           setError("Failed to load vocab list.");
           setVocabs([]);
+          setSummary("");
         }
       } finally {
         if (isMounted) {
@@ -79,33 +84,44 @@ export const useVocab = ({ videoId }: UseVocabParams): UseVocabReturn => {
     };
   }, [videoId]);
 
-  return { vocabs, isLoading, error };
+  // return { vocabs, summary, isLoading, error };
 
-  // return useMemo(
-  //   () => ({
-  //     vocabs: [
-  //       {
-  //         id: "1",
-  //         japanese_vocab: "Apple",
-  //         pronunciation: "ringo",
-  //         english_translation: "Apple",
-  //         timestamp: "0:45",
-  //         jlpt_level: 5,
-  //         checked: false,
-  //       },
-  //       {
-  //         id: "2",
-  //         japanese_vocab: "Student",
-  //         pronunciation: "gakusei",
-  //         english_translation: "Student",
-  //         timestamp: "1:12",
-  //         jlpt_level: 5,
-  //         checked: false,
-  //       },
-  //     ],
-  //     isLoading: false,
-  //     error: null,
-  //   }),
-  //   [] // Empty dependency array since this is static mock data
-  // );
+  return useMemo(
+    () => ({
+      vocabs: [
+        {
+          id: "1",
+          japanese_vocab: "Apple",
+          pronunciation: "ringo",
+          english_translation: "Apple",
+          timestamp: "0:45",
+          jlpt_level: 5,
+          checked: false,
+        },
+        {
+          id: "2",
+          japanese_vocab: "Supermarket",
+          pronunciation: "gakusei",
+          english_translation: "Student",
+          timestamp: "1:12",
+          jlpt_level: 5,
+          checked: false,
+        },
+        {
+          id: "3",
+          japanese_vocab: "Christmas",
+          pronunciation: "chrisutamasu",
+          english_translation: "Christmas",
+          timestamp: "1:15",
+          jlpt_level: 5,
+          checked: false,
+        },
+      ],
+      summary:
+        "This video provides a tour of a typical Japanese supermarket while discussing how Christmas is celebrated in Japan as a commercial and romantic event. The narrator explains seasonal shopping habits, demonstrates how to use a self-checkout machine, and shares a recipe for making KFC-style fried chicken at home.",
+      isLoading: false,
+      error: null,
+    }),
+    [] // Empty dependency array since this is static mock data
+  );
 };

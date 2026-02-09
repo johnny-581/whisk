@@ -1,21 +1,34 @@
-def get_vocab_chatbot_prompt(target_words: list[str]) -> list[dict]:
+def get_vocab_chatbot_prompt(target_words: list[str], video_summary: str = "") -> list[dict]:
     """Build initial LLM context with the game host system prompt."""
+    
+    # Build the base prompt
+    base_content = (
+        "Your goal is to help the user learn Japanese by chatting with them and getting them to say specific words. "
+        f"The words are: {', '.join(target_words)}. "
+        "When you hear a target word used in a complete sentence, call the 'mark_word' tool immediately. "
+        "The user must incorporate the word in a complete sentence. "
+        "If the user just says the word on its own, do not call the 'mark_word' tool. "
+        "Do not tell the user the words directly. Do not name the words directly. "
+        "Steer the topic so that the user is more likely to say the words. "
+        "When all words are found, you must immediately give a short closing message and end the conversation. "
+        "Do not continue to new topics after the closing. "
+        "Start by introducing yourself and the goal of the conversation, but keep the introduction very brief."
+    )
+    
+    # Add video context if summary is provided
+    if video_summary:
+        video_context = (
+            f"\n\nIMPORTANT: The vocabulary words come from a video about: {video_summary} "
+            "Model your conversation around this video's theme whenever possible. "
+            "Use the video's context to create natural conversation topics that will help the user practice the target words. "
+            "Reference the video's subject matter to make the conversation more engaging and relevant."
+        )
+        base_content += video_context
+    
     return [
         {
             "role": "system",
-            "content": (
-                "You are a language learning chatbot. "
-                "Your goal is to help the user learn by talking to them and getting them to say specific words. "
-                f"The words are: {', '.join(target_words)}. "
-                "When you hear a secret word used in a complete sentence, call the 'mark_word' tool immediately. "
-                "The user must incorporate the word in a complete sentence. "
-                "If the user just says the word on its own, do not call the 'mark_word' tool. "
-                "Do not tell the user the words directly. Do not name the words directly. "
-                "Steer the topic so that the user is more likely to say the words. "
-                "When all words are found, you must immediately give a short closing message and end the conversation. "
-                "Do not continue to new topics after the closing."
-                "Start by introducing yourself and the game."
-            ),
+            "content": base_content,
         },
     ]
 

@@ -38,7 +38,7 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch vocabulary data and user level
-  const { vocabs, error: vocabError } = useVocab({ videoId });
+  const { vocabs, summary, error: vocabError } = useVocab({ videoId });
 
   // Build connection parameters
   const [connectParams, setConnectParams] = useState<APIRequest>(
@@ -63,6 +63,7 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
       ...baseConfig,
       requestData: {
         ...baseRequestData,
+        summary: summary,
         vocab: vocabs.map((word: Vocab) => ({
           id: word.id,
           japanese_vocab: word.japanese_vocab,
@@ -73,7 +74,7 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
         })),
       },
     });
-  }, [vocabs]);
+  }, [vocabs, summary]);
 
   return (
     <ThemeProvider defaultTheme="terminal" disableStorage>
