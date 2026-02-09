@@ -42,10 +42,7 @@ function adjustLevel(
   else if (pct <= 0.4) delta = -1;
 
   const idx = JLPT_LEVELS.indexOf(base as (typeof JLPT_LEVELS)[number]);
-  const nextIdx = Math.min(
-    JLPT_LEVELS.length - 1,
-    Math.max(0, idx + delta)
-  );
+  const nextIdx = Math.min(JLPT_LEVELS.length - 1, Math.max(0, idx + delta));
   return JLPT_LEVELS[nextIdx];
 }
 
@@ -90,7 +87,6 @@ export function OnboardingWizard() {
   };
 
   const handleComplete = () => {
-    
     router.push("/dashboard");
   };
 
@@ -101,8 +97,7 @@ export function OnboardingWizard() {
     else if (step === STEPS.QUIZ_INTRO) setStep(STEPS.QUIZ);
     else if (step === STEPS.QUIZ) {
       const questions = JLPT_QUIZ_BANK[currentLevel!];
-      const isCorrect =
-        selectedAnswer === questions[currentQuizIndex].correct;
+      const isCorrect = selectedAnswer === questions[currentQuizIndex].correct;
       const nextScore = quizScore + (isCorrect ? 1 : 0);
 
       setSelectedAnswer(null);
@@ -161,8 +156,8 @@ export function OnboardingWizard() {
           className={cn(
             "w-full max-w-xl py-4 flex flex-col",
             step === STEPS.WELCOME ||
-            step === STEPS.QUIZ_INTRO ||
-            step === STEPS.DONE
+              step === STEPS.QUIZ_INTRO ||
+              step === STEPS.DONE
               ? "justify-center items-center text-center"
               : "justify-start"
           )}
@@ -262,7 +257,7 @@ export function OnboardingWizard() {
                   Based on your answers, you are {currentLevel} level! Your
                   personalized experience is ready.
                 </p>
-                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-left shadow-sm">
+                {/* <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-left shadow-sm">
                   <p className="text-emerald-900 font-bold text-sm uppercase tracking-wider">
                     Level adjustment rules
                   </p>
@@ -271,7 +266,7 @@ export function OnboardingWizard() {
                       <li key={rule}>{rule}</li>
                     ))}
                   </ul>
-                </div>
+                </div> */}
               </div>
             )}
           </div>
