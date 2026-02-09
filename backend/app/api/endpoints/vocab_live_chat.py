@@ -87,11 +87,13 @@ async def start_chat_session(
                 if isinstance(entry, str):
                     word = entry.strip()
                 elif isinstance(entry, dict):
-                    word = str(entry.get("word", "")).strip()
+                    word = str(entry.get("japanese_vocab", "")).strip()
                 else:
                     word = ""
                 if word:
                     target_words.append(word)
+        
+        print(f"Target words changed: {target_words}")
 
         # Step 1: Create a new Daily Room
         logger.info("Step 1: Creating Daily room...")

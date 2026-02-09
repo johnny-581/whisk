@@ -30,7 +30,7 @@ export default function DashboardLayout({
         const videosArray = Array.isArray(data) ? data : [];
         setVideos(videosArray);
         if (videosArray.length > 0) {
-            router.push(`/videos/${videosArray[0].video_id}`);
+          router.push(`/videos/${videosArray[0].video_id}`);
         }
       } catch (err) {
         console.error(err);
