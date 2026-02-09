@@ -267,28 +267,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
           </div>
         )}
 
-        <div className="space-y-3">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-400">
-            Past Conversations
-          </h3>
-          <Card className="rounded-2xl border-emerald-50 shadow-sm overflow-hidden">
-            <ul className="divide-y divide-emerald-50">
-              {MOCK_CONVERSATIONS.map((c) => (
-                <li key={c.id}>
-                  <Link
-                    href={`/conversations/${c.id}`}
-                    className="flex items-center justify-between px-5 py-4 text-sm font-medium text-emerald-950 hover:bg-emerald-50 transition-colors group"
-                  >
-                    <span>{c.label}</span>
-                    <span className="text-emerald-300 group-hover:text-emerald-600 transition-transform group-hover:translate-x-1">
-                      <ArrowRightIcon />
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </Card>
-        </div>
+        
       </div>
     </div>
   );
