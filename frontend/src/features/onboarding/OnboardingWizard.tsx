@@ -123,7 +123,7 @@ export function OnboardingWizard() {
         <div
           className={cn(
             "w-full max-w-xl py-4 flex flex-col",
-            [STEPS.WELCOME, STEPS.QUIZ_INTRO, STEPS.DONE].includes(step)
+            ([STEPS.WELCOME, STEPS.QUIZ_INTRO, STEPS.DONE] as number[]).includes(step)
               ? "justify-center items-center text-center"
               : "justify-start"
           )}
@@ -131,7 +131,7 @@ export function OnboardingWizard() {
           <div
             className={cn(
               "mb-8 min-h-[120px] flex flex-col w-full",
-              [STEPS.WELCOME, STEPS.QUIZ_INTRO, STEPS.DONE].includes(step)
+              ([STEPS.WELCOME, STEPS.QUIZ_INTRO, STEPS.DONE] as number[]).includes(step)
                 ? "items-center text-center"
                 : "justify-center text-left"
             )}
