@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useVideosStore } from "@/lib/store";
+import whisk from "@/assets/whisk.png";
 
 export default function DashboardLayout({
   children,
@@ -46,11 +47,11 @@ export default function DashboardLayout({
       <aside className="w-72 border-r border-mint-100 bg-white flex flex-col">
   {/* Logo */}
   <div className="p-6 shrink-0">
-    <Link
-      href="/dashboard"
-      className="text-mint-800 font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
-    >
-      whisk
+    <Link href="/dashboard" className="flex items-center gap-2">
+        <img src={whisk.src} alt="Whisk logo" className="h-8 w-8" />
+        <span className="text-mint-800 font-bold text-xl tracking-tight">
+            whisk
+        </span>
     </Link>
   </div>
 

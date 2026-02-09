@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/lib/store";
 import quizBank from "@/features/onboarding/quiz-bank.json";
+import whisk from "@/assets/whisk.png";
 
 interface QuizQuestion {
   question: string;
@@ -110,8 +111,11 @@ export function OnboardingWizard() {
       </div>
 
       <header className="p-6 shrink-0">
-        <div className="text-mint-800 font-bold text-xl tracking-tight">
-          whisk
+        <div className="flex items-center gap-2">
+            <img src={whisk.src} alt="Whisk logo" className="h-8 w-8" />
+            <span className="text-mint-800 font-bold text-xl tracking-tight">
+                whisk
+            </span>
         </div>
       </header>
 
