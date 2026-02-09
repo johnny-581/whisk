@@ -141,25 +141,22 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
       {/* Header */}
       <header className="space-y-4">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-  <div className="space-y-2">
-    <h1 className="text-2xl font-bold text-[#1A2421] tracking-tight">
-      {loading ? "Loading…" : title || "Untitled video"}
-    </h1>
-    <p className="text-sm text-muted-foreground break-all opacity-70">
-      {videoUrl}
-    </p>
-  </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-[#1A2421] tracking-tight">
+              {loading ? "Loading…" : title || "Untitled video"}
+            </h1>
+            <p className="text-sm text-muted-foreground break-all opacity-70">
+              {videoUrl}
+            </p>
+          </div>
 
-  {/* AI Practice Button - Now fully compliant with button.tsx */}
-  <Link href={`/conversations/${videoId}`} passHref>
-    <Button 
-      variant="primary" 
-      size="large" 
-    >
-      AI Practice
-    </Button>
-  </Link>
-</div>
+          {/* AI Practice Button - Now fully compliant with button.tsx */}
+          <Link href={`/conversations/${videoId}`} passHref>
+            <Button variant="primary" size="large">
+              AI Practice
+            </Button>
+          </Link>
+        </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {tags.map((tag) => (
@@ -169,7 +166,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
       </header>
 
       {/* Main Content Grid */}
-      <div className="flex flex-col lg:flex-row gap-8 lg:h-[60vh] min-h-[400px]">
+      <div className="flex flex-col lg:flex-row gap-8 lg:h-[50vh] min-h-[400px]">
         {/* VIDEO PLAYER */}
         <div className="flex-[2] min-w-0">
           <div className="relative w-full h-full rounded-2xl overflow-hidden bg-black shadow-lg border border-mint-100">
@@ -203,58 +200,67 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
         </div>
 
         {/* VOCAB CARD */}
-<Card className="flex-1 min-w-0 flex flex-col shadow-sm border-mint-100 rounded-2xl overflow-hidden">
-  <div className="p-5 border-b border-mint-100 bg-white sticky top-0 z-10">
-    <h3 className="text-lg font-bold text-neutral-900">Vocabulary List</h3>
-  </div>
+        <Card className="flex-1 min-w-0 flex flex-col shadow-sm border-mint-100 rounded-2xl overflow-hidden">
+          <div className="p-5 border-b border-mint-100 bg-white sticky top-0 z-10">
+            <h3 className="text-lg font-bold text-neutral-900">
+              Vocabulary List
+            </h3>
+          </div>
 
-  {/* Changed: Added overflow-x-auto and overflow-y-auto to allow both scroll directions */}
-  <div className="flex-1 overflow-auto p-5 pt-0">
-    {loading ? (
-      <div className="py-10 text-center space-y-2">
-        <div className="animate-spin inline-block w-4 h-4 border-2 border-neutral-400 border-t-transparent rounded-full" />
-        <p className="text-sm text-neutral-500">Analyzing speech...</p>
-      </div>
-    ) : vocab.length === 0 ? (
-      <p className="py-10 text-center text-sm text-neutral-400">No vocabulary extracted.</p>
-    ) : (
-      /* Changed: Added w-max to force the table to expand to the width of its longest text */
-      <table className="w-max min-w-full text-sm">
-        <thead className="sticky top-0 bg-white z-20">
-          <tr className="text-left text-neutral-400 font-semibold uppercase text-[10px] tracking-wider">
-            {/* Added whitespace-nowrap to headers to prevent them from breaking */}
-            <th className="py-3 pr-8 whitespace-nowrap">Word</th>
-            <th className="py-3 pr-8 whitespace-nowrap">Reading</th>
-            <th className="py-3 whitespace-nowrap">Meaning</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-emerald-50/50">
-          {vocab.map((v, idx) => (
-            <tr key={idx} className="group hover:bg-emerald-50/30 transition-colors">
-              {/* Added whitespace-nowrap to cells so they don't wrap onto new lines */}
-              <td className="py-3 pr-8 font-bold text-neutral-900 whitespace-nowrap">
-                {v.japanese_vocab}
-              </td>
-              <td className="py-3 pr-8 text-mint-800 font-medium whitespace-nowrap">
-                {v.pronunciation}
-              </td>
-              <td className="py-3 text-neutral-400 whitespace-nowrap">
-                {v.english_translation}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    )}
-  </div>
-</Card>
+          {/* Changed: Added overflow-x-auto and overflow-y-auto to allow both scroll directions */}
+          <div className="flex-1 overflow-auto p-5 pt-0">
+            {loading ? (
+              <div className="py-10 text-center space-y-2">
+                <div className="animate-spin inline-block w-4 h-4 border-2 border-neutral-400 border-t-transparent rounded-full" />
+                <p className="text-sm text-neutral-500">Analyzing speech...</p>
+              </div>
+            ) : vocab.length === 0 ? (
+              <p className="py-10 text-center text-sm text-neutral-400">
+                No vocabulary extracted.
+              </p>
+            ) : (
+              /* Changed: Added w-max to force the table to expand to the width of its longest text */
+              <table className="w-max min-w-full text-sm">
+                <thead className="sticky top-0 bg-white z-20">
+                  <tr className="text-left text-neutral-400 font-semibold uppercase text-[10px] tracking-wider">
+                    {/* Added whitespace-nowrap to headers to prevent them from breaking */}
+                    <th className="py-3 pr-8 whitespace-nowrap">Word</th>
+                    <th className="py-3 pr-8 whitespace-nowrap">Reading</th>
+                    <th className="py-3 whitespace-nowrap">Meaning</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-emerald-50/50">
+                  {vocab.map((v, idx) => (
+                    <tr
+                      key={idx}
+                      className="group hover:bg-emerald-50/30 transition-colors"
+                    >
+                      {/* Added whitespace-nowrap to cells so they don't wrap onto new lines */}
+                      <td className="py-3 pr-8 font-bold text-neutral-900 whitespace-nowrap">
+                        {v.japanese_vocab}
+                      </td>
+                      <td className="py-3 pr-8 text-mint-800 font-medium whitespace-nowrap">
+                        {v.pronunciation}
+                      </td>
+                      <td className="py-3 text-neutral-400 whitespace-nowrap">
+                        {v.english_translation}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </Card>
       </div>
 
       {/* Footer Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         {summary && (
           <div className="space-y-3">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-400">Summary</h3>
+            <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-400">
+              Summary
+            </h3>
             <p className="text-base text-neutral-700 leading-relaxed bg-white p-6 rounded-2xl border border-emerald-50 shadow-sm">
               {summary}
             </p>
@@ -262,7 +268,9 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
         )}
 
         <div className="space-y-3">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-400">Past Conversations</h3>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-400">
+            Past Conversations
+          </h3>
           <Card className="rounded-2xl border-emerald-50 shadow-sm overflow-hidden">
             <ul className="divide-y divide-emerald-50">
               {MOCK_CONVERSATIONS.map((c) => (

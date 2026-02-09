@@ -52,13 +52,11 @@ export const UserTranscriptBox = ({ className }: UserTranscriptBoxProps) => {
   return (
     <div className={className}>
       <div className="rounded-3xl bg-white/90 px-8 py-6 shadow-lg backdrop-blur-sm">
-        <div className="text-xl leading-relaxed text-slate-800">
+        <div className="text-xl leading-relaxed text-slate-800 text-center">
           {currentTranscript ? (
-            currentTranscript
+            <p className="">{currentTranscript}</p>
           ) : (
-            <p className="text-xl leading-relaxed text-neutral-800/50 text-center">
-              You&apos;re up next!
-            </p>
+            <p className="text-neutral-800/50">You&apos;re up next!</p>
           )}
         </div>
       </div>
