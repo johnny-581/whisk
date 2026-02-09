@@ -56,7 +56,7 @@ export function VideoUploadForm() {
         </div>
 
         {/* Separated Input and Button - Identical to Dashboard */}
-        <form 
+        <form
           onSubmit={handleSubmit}
           className="flex items-center gap-4 w-full"
         >
@@ -66,7 +66,7 @@ export function VideoUploadForm() {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             required
-            className="flex-1 h-14 pl-4 pr-4 rounded-[12px] border-1 border-white bg-white focus:border-mint-100 outline-none text-lg transition-all placeholder:text-neutral-400"
+            className="flex-1 h-14 pl-4 pr-4 rounded-[12px] border-1 border-white bg-white focus:border-mint-100 outline-none text-lg transition-all placeholder:text-neutral-300 text-neutral-400"
           />
 
           <Button
