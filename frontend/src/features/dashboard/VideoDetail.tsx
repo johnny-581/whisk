@@ -47,20 +47,16 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
   const jlptLevel = useUserStore((state) => state.jlptLevel);
   const upsertVideo = useVideosStore((s) => s.upsertVideo);
 
-
   useEffect(() => {
     const fetchVideoInfo = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // 1️⃣ Try DB first
-        console.log("video id:", videoId);
         const dbRes = await fetch(`/api/db/${videoId}`);
 
         if (dbRes.ok) {
           const dbData = await dbRes.json();
-
           setInfo({
             title: dbData.title ?? "Untitled video",
             video_url: dbData.video_url ?? `${YOUTUBE_WATCH_URL}${videoId}`,
@@ -69,11 +65,9 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
             summary: dbData.summary ?? "",
             vocab: Array.isArray(dbData.vocab) ? dbData.vocab : [],
           });
-
-          return; // ✅ STOP — skip analysis
+          return;
         }
 
-        // 2️⃣ Not in DB → run analysis
         const res = await fetch("/api/video-analysis", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -100,20 +94,16 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
         });
 
         upsertVideo({
-            id: data.id ?? videoId,
-            video_id: data.video_id ?? videoId,
-            title: data.title ?? "Untitled video",
+          id: data.id ?? videoId,
+          video_id: data.video_id ?? videoId,
+          title: data.title ?? "Untitled video",
         });
 
         await fetch("/api/videos", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
         });
-        
-        
-  
-  
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
       } finally {
@@ -122,11 +112,11 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
     };
 
     fetchVideoInfo();
-  }, [videoId]);
+  }, [videoId, jlptLevel, upsertVideo]);
 
   if (error) {
     return (
-      <div className="space-y-4">
+      <div className="p-8 space-y-4">
         <p className="text-sm text-red-600">{error}</p>
         <Button variant="secondary" onClick={() => window.history.back()}>
           ← Back
@@ -142,36 +132,50 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
   const summary = info?.summary ?? "";
 
   return (
-    <div className="space-y-6">
+    /* ADDED: 
+       - p-8: Large padding for a professional dashboard feel
+       - max-w-7xl: Prevents content from stretching too wide on 4K screens
+       - mx-auto: Keeps the container centered
+    */
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
       {/* Header */}
-      <header className="space-y-2">
-        <h1 className="text-xl font-semibold text-[#1A2421] leading-tight">
-          {loading ? "Loading…" : title || "Untitled video"}
-        </h1>
+      <header className="space-y-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+  <div className="space-y-2">
+    <h1 className="text-2xl font-bold text-[#1A2421] tracking-tight">
+      {loading ? "Loading…" : title || "Untitled video"}
+    </h1>
+    <p className="text-sm text-muted-foreground break-all opacity-70">
+      {videoUrl}
+    </p>
+  </div>
 
-        <p className="text-sm text-muted-foreground break-all">{videoUrl}</p>
+  {/* AI Practice Button - Now fully compliant with button.tsx */}
+  <Link href={`/conversations/${videoId}`} passHref>
+    <Button 
+      variant="primary" 
+      size="large" 
+    >
+      AI Practice
+    </Button>
+  </Link>
+</div>
 
         <div className="flex flex-wrap items-center gap-2">
           {tags.map((tag) => (
             <Tag key={tag}>{tag}</Tag>
           ))}
-
-          <Link href={`/conversations/${videoId}`} className="ml-auto">
-            <Button variant="secondary" icon={EqualizerIcon}>
-              AI Practice
-            </Button>
-          </Link>
         </div>
       </header>
 
-      {/* Main: video + vocab */}
-      <div className="flex flex-col lg:flex-row gap-6 h-[calc(50vh)]">
-        {/* VIDEO */}
-        <div className="flex-2 min-w-0 flex flex-col">
-          <div className="relative w-full h-full rounded-xl overflow-hidden bg-black">
+      {/* Main Content Grid */}
+      <div className="flex flex-col lg:flex-row gap-8 lg:h-[60vh] min-h-[400px]">
+        {/* VIDEO PLAYER */}
+        <div className="flex-[2] min-w-0">
+          <div className="relative w-full h-full rounded-2xl overflow-hidden bg-black shadow-lg border border-mint-100">
             {loading ? (
-              <div className="absolute inset-0 flex items-center justify-center text-white">
-                Loading…
+              <div className="absolute inset-0 flex items-center justify-center text-white bg-neutral-900">
+                <span className="animate-pulse">Loading Video...</span>
               </div>
             ) : (
               <>
@@ -182,25 +186,16 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
-
-                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between pointer-events-none">
                   <a
                     href={videoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded bg-black/60 px-2 py-1.5 text-xs text-white hover:bg-black/80"
+                    className="inline-flex items-center gap-2 rounded-lg bg-black/70 backdrop-blur-md px-3 py-2 text-xs text-white hover:bg-black/90 transition-colors pointer-events-auto"
                   >
                     <YoutubeIcon />
                     Watch on Youtube
                   </a>
-
-                  <button
-                    type="button"
-                    className="rounded bg-black/60 p-1.5 text-white hover:bg-black/80"
-                    aria-label="Share"
-                  >
-                    <ShareIcon />
-                  </button>
                 </div>
               </>
             )}
@@ -208,77 +203,85 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
         </div>
 
         {/* VOCAB CARD */}
-        <Card className="rounded-xl flex-1 min-w-0 flex flex-col p-0 lg:self-stretch">
-          <div className="pb-2 shrink-0 p-6">
-            <h3 className="text-base font-semibold">Vocab</h3>
-          </div>
+<Card className="flex-1 min-w-0 flex flex-col shadow-sm border-mint-100 rounded-2xl overflow-hidden">
+  <div className="p-5 border-b border-mint-100 bg-white sticky top-0 z-10">
+    <h3 className="text-lg font-bold text-neutral-900">Vocabulary List</h3>
+  </div>
 
-          <div className="flex-1 overflow-y-auto px-6 pb-6 min-h-0">
-            {loading ? (
-              <p className="text-sm text-neutral-600">Extracting vocabulary…</p>
-            ) : vocab.length === 0 ? (
-              <p className="text-sm text-neutral-600">No vocabulary yet.</p>
-            ) : (
-              <div>
-                <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-white z-10">
-                    <tr className="border-b border-emerald-100 text-left text-neutral-600 font-medium">
-                      <th className="pb-2 pr-4 whitespace-nowrap">Vocab</th>
-                      <th className="pb-2 pr-4 whitespace-nowrap">
-                        Pronunciation
-                      </th>
-                      <th className="pb-2 whitespace-nowrap">Translation</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {vocab.map((v, idx) => (
-                      <tr key={idx} className="border-b border-emerald-50/80">
-                        <td className="py-2 pr-4 font-medium text-[#1A2421]">
-                          {v.japanese_vocab}
-                        </td>
-                        <td className="py-2 pr-4 text-neutral-600">
-                          {v.pronunciation}
-                        </td>
-                        <td className="py-2 text-neutral-600">
-                          {v.english_translation}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </Card>
+  {/* Changed: Added overflow-x-auto and overflow-y-auto to allow both scroll directions */}
+  <div className="flex-1 overflow-auto p-5 pt-0">
+    {loading ? (
+      <div className="py-10 text-center space-y-2">
+        <div className="animate-spin inline-block w-4 h-4 border-2 border-neutral-400 border-t-transparent rounded-full" />
+        <p className="text-sm text-neutral-500">Analyzing speech...</p>
+      </div>
+    ) : vocab.length === 0 ? (
+      <p className="py-10 text-center text-sm text-neutral-400">No vocabulary extracted.</p>
+    ) : (
+      /* Changed: Added w-max to force the table to expand to the width of its longest text */
+      <table className="w-max min-w-full text-sm">
+        <thead className="sticky top-0 bg-white z-20">
+          <tr className="text-left text-neutral-400 font-semibold uppercase text-[10px] tracking-wider">
+            {/* Added whitespace-nowrap to headers to prevent them from breaking */}
+            <th className="py-3 pr-8 whitespace-nowrap">Word</th>
+            <th className="py-3 pr-8 whitespace-nowrap">Reading</th>
+            <th className="py-3 whitespace-nowrap">Meaning</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-emerald-50/50">
+          {vocab.map((v, idx) => (
+            <tr key={idx} className="group hover:bg-emerald-50/30 transition-colors">
+              {/* Added whitespace-nowrap to cells so they don't wrap onto new lines */}
+              <td className="py-3 pr-8 font-bold text-neutral-900 whitespace-nowrap">
+                {v.japanese_vocab}
+              </td>
+              <td className="py-3 pr-8 text-mint-800 font-medium whitespace-nowrap">
+                {v.pronunciation}
+              </td>
+              <td className="py-3 text-neutral-400 whitespace-nowrap">
+                {v.english_translation}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+</Card>
       </div>
 
-      {/* Summary */}
-      {summary && (
-        <p className="text-sm text-muted-foreground max-w-2xl">{summary}</p>
-      )}
+      {/* Footer Details */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+        {summary && (
+          <div className="space-y-3">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-400">Summary</h3>
+            <p className="text-base text-neutral-700 leading-relaxed bg-white p-6 rounded-2xl border border-emerald-50 shadow-sm">
+              {summary}
+            </p>
+          </div>
+        )}
 
-      {/* Conversations */}
-      <Card className="rounded-xl">
-        <div className="space-y-4">
-          <h3 className="text-base font-semibold">Your conversations</h3>
-          <ul className="divide-y divide-emerald-50">
-            {MOCK_CONVERSATIONS.map((c) => (
-              <li key={c.id}>
-                <Link
-                  href={`/conversations/${c.id}`}
-                  className="flex items-center justify-between py-3 text-sm text-[#1A2421] hover:text-emerald-700"
-                >
-                  <span>{c.label}</span>
-                  <span className="text-neutral-600">
-                    <ArrowRightIcon />
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+        <div className="space-y-3">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-400">Past Conversations</h3>
+          <Card className="rounded-2xl border-emerald-50 shadow-sm overflow-hidden">
+            <ul className="divide-y divide-emerald-50">
+              {MOCK_CONVERSATIONS.map((c) => (
+                <li key={c.id}>
+                  <Link
+                    href={`/conversations/${c.id}`}
+                    className="flex items-center justify-between px-5 py-4 text-sm font-medium text-emerald-950 hover:bg-emerald-50 transition-colors group"
+                  >
+                    <span>{c.label}</span>
+                    <span className="text-emerald-300 group-hover:text-emerald-600 transition-transform group-hover:translate-x-1">
+                      <ArrowRightIcon />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Card>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
