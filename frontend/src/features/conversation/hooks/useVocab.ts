@@ -84,44 +84,44 @@ export const useVocab = ({ videoId }: UseVocabParams): UseVocabReturn => {
     };
   }, [videoId]);
 
-  // return { vocabs, summary, isLoading, error };
+  return { vocabs, summary, isLoading, error };
 
-  return useMemo(
-    () => ({
-      vocabs: [
-        {
-          id: "1",
-          japanese_vocab: "Apple",
-          pronunciation: "ringo",
-          english_translation: "Apple",
-          timestamp: "0:45",
-          jlpt_level: 5,
-          checked: false,
-        },
-        {
-          id: "2",
-          japanese_vocab: "Supermarket",
-          pronunciation: "gakusei",
-          english_translation: "Student",
-          timestamp: "1:12",
-          jlpt_level: 5,
-          checked: false,
-        },
-        {
-          id: "3",
-          japanese_vocab: "Christmas",
-          pronunciation: "chrisutamasu",
-          english_translation: "Christmas",
-          timestamp: "1:15",
-          jlpt_level: 5,
-          checked: false,
-        },
-      ],
-      summary:
-        "This video provides a tour of a typical Japanese supermarket while discussing how Christmas is celebrated in Japan as a commercial and romantic event. The narrator explains seasonal shopping habits, demonstrates how to use a self-checkout machine, and shares a recipe for making KFC-style fried chicken at home.",
-      isLoading: false,
-      error: null,
-    }),
-    [] // Empty dependency array since this is static mock data
-  );
+  // return useMemo(
+  //   () => ({
+  //     vocabs: [
+  //       {
+  //         id: "1",
+  //         japanese_vocab: "Apple",
+  //         pronunciation: "ringo",
+  //         english_translation: "Apple",
+  //         timestamp: "0:45",
+  //         jlpt_level: 5,
+  //         checked: false,
+  //       },
+  //       {
+  //         id: "2",
+  //         japanese_vocab: "Supermarket",
+  //         pronunciation: "gakusei",
+  //         english_translation: "Student",
+  //         timestamp: "1:12",
+  //         jlpt_level: 5,
+  //         checked: false,
+  //       },
+  //       {
+  //         id: "3",
+  //         japanese_vocab: "Christmas",
+  //         pronunciation: "chrisutamasu",
+  //         english_translation: "Christmas",
+  //         timestamp: "1:15",
+  //         jlpt_level: 5,
+  //         checked: false,
+  //       },
+  //     ],
+  //     summary:
+  //       "This video provides a tour of a typical Japanese supermarket while discussing how Christmas is celebrated in Japan as a commercial and romantic event. The narrator explains seasonal shopping habits, demonstrates how to use a self-checkout machine, and shares a recipe for making KFC-style fried chicken at home.",
+  //     isLoading: false,
+  //     error: null,
+  //   }),
+  //   [] // Empty dependency array since this is static mock data
+  // );
 };
