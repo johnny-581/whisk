@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 
 export function VideoUploadForm() {
   const router = useRouter();
@@ -12,39 +11,32 @@ export function VideoUploadForm() {
 
   const extractVideoId = (url: string): string => {
     let parsed: URL;
-
     try {
       parsed = new URL(url);
     } catch {
       throw new Error("Invalid YouTube URL");
     }
-
     const hostname = parsed.hostname;
-
     if (hostname === "www.youtube.com" || hostname === "youtube.com") {
       const videoId = parsed.searchParams.get("v");
       if (videoId) return videoId;
     }
-
     if (hostname === "youtu.be") {
       const videoId = parsed.pathname.replace("/", "");
       if (videoId) return videoId;
     }
-
     throw new Error("Invalid YouTube URL");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!url || loading) return;
     setLoading(true);
 
     try {
-      // TODO: Implement actual video upload/processing
+      // Backend simulation logic
       console.log("Processing video:", url);
-
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
       router.push(`/videos/${extractVideoId(url)}`);
     } catch (error) {
       console.error("Error uploading video:", error);
@@ -54,37 +46,39 @@ export function VideoUploadForm() {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-2xl">
-      <Card>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold">Upload New Video</h2>
-            <p className="text-sm text-neutral-600">
-              Add a YouTube video to extract vocabulary
-            </p>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="url" className="block text-sm font-medium mb-2">
-                YouTube URL
-              </label>
-              <input
-                id="url"
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=..."
-                className="w-full px-3 py-2 border rounded-md"
-                required
-              />
-            </div>
-
-            <Button type="submit" active={!loading} className="w-full">
-              {loading ? "Processing..." : "Extract Vocabulary"}
-            </Button>
-          </form>
+    <div className="flex flex-col items-center justify-center h-full px-6 bg-mint-50">
+      <div className="w-full max-w-2xl space-y-8">
+        {/* Header Text - Identical to Dashboard */}
+        <div className="text-left">
+          <h1 className="text-3xl font-bold text-neutral-900 tracking-tight">
+            what do you want to watch?
+          </h1>
         </div>
-      </Card>
+
+        {/* Separated Input and Button - Identical to Dashboard */}
+        <form 
+          onSubmit={handleSubmit}
+          className="flex items-center gap-4 w-full"
+        >
+          <input
+            type="url"
+            placeholder="https://www.youtube.com/watch?v=..."
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            required
+            className="flex-1 h-14 pl-4 pr-4 rounded-[12px] border-1 border-white bg-white focus:border-mint-100 outline-none text-lg transition-all placeholder:text-neutral-400"
+          />
+
+          <Button
+            type="submit"
+            size="large"
+            active={url.length > 0 && !loading}
+            className="h-14 px-10 shrink-0"
+          >
+            {loading ? "Processing..." : "Start learning"}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

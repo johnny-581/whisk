@@ -47,7 +47,7 @@ export default function DashboardLayout({
         {/* Logo */}
         <div className="p-6 shrink-0">
           <Link
-            href="/"
+            href="/dashboard"
             className="text-emerald-900 font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
           >
             whisk
@@ -57,20 +57,19 @@ export default function DashboardLayout({
         <div className="flex-1 flex flex-col p-4 space-y-4">
           <Link href="/videos/new">
             <Button className="w-full rounded-xl h-11 font-bold bg-emerald-800 hover:bg-emerald-900 text-white">
-              <span className="text-lg leading-none">+</span>
               New video
             </Button>
           </Link>
 
           {/* Video list */}
           <div className="flex-1 overflow-y-auto px-4 mt-6">
-            <h2 className="text-xs font-bold text-emerald-800/50 uppercase tracking-widest mb-3">
+            <h2 className="text-sm font-bold text-neutral-400 uppercase tracking-widest mb-8">
               Videos
             </h2>
 
             <div className="space-y-3">
               {videos.length === 0 ? (
-                <p className="text-sm text-emerald-900/40 italic font-medium">
+                <p className="text-sm text-mint-400 font-medium">
                   No videos yet
                 </p>
               ) : (
@@ -96,7 +95,9 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main */}
-      <main className="flex-1 overflow-auto bg-mint-50 p-12">{children}</main>
+      <main className="flex-1 overflow-auto bg-mint-50">
+        {children}
+      </main>
     </div>
   );
 }

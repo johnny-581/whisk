@@ -1,11 +1,13 @@
 "use client";
 
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/lib/store";
 import quizBank from "@/features/onboarding/quiz-bank.json";
+
 
 interface QuizQuestion {
   question: string;
@@ -15,6 +17,7 @@ interface QuizQuestion {
   correct: number;
   explanation?: string; // Optional, if your data includes it
 }
+
 
 const JLPT_QUIZ_BANK: Record<string, QuizQuestion[]> = quizBank;
 const JLPT_LEVELS = ["N5", "N4", "N3", "N2", "N1"] as const;
@@ -55,6 +58,7 @@ function applyBeginnerMode(
   const nextIdx = Math.min(JLPT_LEVELS.length - 1, idx + 1);
   return JLPT_LEVELS[nextIdx];
 }
+
 
 export function OnboardingWizard() {
   const router = useRouter();

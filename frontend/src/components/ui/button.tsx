@@ -28,8 +28,8 @@ export function Button({
 
   const variantStyles = {
     primary: active
-      ? "bg-mint-800 text-white hover:bg-mint-900"
-      : "bg-mint-400 text-white cursor-not-allowed",
+      ? "bg-mint-800 text-white hover:bg-mint-400"
+      : "bg-mint-800 text-white cursor-not-allowed",
     secondary: active
       ? "border-2 border-neutral-900 text-neutral-900 bg-transparent hover:bg-neutral-900/5"
       : "border-2 border-neutral-400 text-neutral-400 bg-transparent cursor-not-allowed",
