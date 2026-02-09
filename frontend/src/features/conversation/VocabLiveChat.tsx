@@ -16,7 +16,8 @@ import { AgentSpeechBubble } from "./components/AgentSpeechBubble";
 import { ConnectionButton } from "./components/ConnectionButton";
 import { ExitModal } from "./components/ExitModal";
 import { VocabTracker } from "./components/WordTracker";
-import conversationBg from "@/assets/conversation-bg.png";
+import { UserTranscriptBox } from "./components/UserTranscriptBox";
+import liveChatBg from "@/assets/live-chat-bg.jpeg";
 import { DEFAULT_TRANSPORT, TRANSPORT_CONFIG } from "./config";
 import type { Vocab } from "./types";
 import { useVocab, useWordTracking, useConversationState } from "./hooks";
@@ -33,6 +34,9 @@ export interface VocabLiveChatProps {
 export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
   const videoId = conversationId!;
 
+  // Loading state for initial page load
+  const [isLoading, setIsLoading] = useState(true);
+
   // Fetch vocabulary data and user level
   const { vocabs, error: vocabError } = useVocab({ videoId });
 
@@ -40,6 +44,15 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
   const [connectParams, setConnectParams] = useState<APIRequest>(
     TRANSPORT_CONFIG[DEFAULT_TRANSPORT]
   );
+
+  // Show loading screen for 2 seconds on initial load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 6000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const baseConfig = TRANSPORT_CONFIG[DEFAULT_TRANSPORT];
@@ -97,6 +110,17 @@ export const VocabLiveChat = ({ conversationId }: VocabLiveChatProps = {}) => {
             {vocabError}
           </div>
         )}
+
+        {/* Loading overlay */}
+        {isLoading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-mint-50/80 backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-4">
+              <p className="text-neutral-800 text-2xl font-bold">
+                Hold on tight while we prepare your conversation...
+              </p>
+            </div>
+          </div>
+        )}
       </FullScreenContainer>
     </ThemeProvider>
   );
@@ -138,38 +162,71 @@ const VocabLiveChatContent = ({
     allWordsCompleted: allCompleted,
   });
 
+  // Auto-connect when component mounts and vocabs are loaded
+  useEffect(() => {
+    if (
+      initialWords.length > 0 &&
+      !isConnected &&
+      !isConnecting &&
+      handleConnect
+    ) {
+      const timer = setTimeout(() => {
+        console.log("Auto-connecting with vocabs:", initialWords.length);
+        handleButtonClick();
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [
+    initialWords,
+    isConnected,
+    isConnecting,
+    handleConnect,
+    handleButtonClick,
+  ]);
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
+      {/* Background image - fills entire page while preserving aspect ratio */}
       <div className="absolute inset-0">
         <Image
-          alt="Conversation background"
+          alt="Live chat background"
           fill
           priority
-          className="bg-[#0f1f1a] object-contain"
-          src={conversationBg}
+          className="object-cover object-bottom"
+          src={liveChatBg}
         />
-        <div className="absolute inset-0 bg-black/5" />
       </div>
 
-      <div className="relative z-10 flex min-h-screen w-full gap-10 px-10 py-10">
-        <aside className="w-[320px] shrink-0 pt-20">
+      {/* Main content */}
+      <div className="relative z-10 flex min-h-screen w-full">
+        {/* Word tracker - left side, slightly toward bottom */}
+        <aside className="absolute bottom-50 left-20">
           <VocabTracker words={words} />
         </aside>
 
-        <section className="relative flex flex-1 items-stretch">
-          <div className="absolute right-8 top-16 w-full max-w-[520px]">
+        {/* Connect button - top right */}
+        {/* <div className="absolute left-8 top-8">
+          <ConnectionButton
+            isConnected={isConnected}
+            isConnecting={isConnecting}
+            onClick={handleButtonClick}
+          />
+        </div> */}
+
+        {/* Agent speech bubble */}
+        <div className="absolute top-30 left-2/3 translate-x-[-10%]">
+          <div className="w-[500px]">
             <AgentSpeechBubble />
           </div>
+        </div>
 
-          <div className="absolute bottom-10 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/70 bg-white/90 px-6 py-3 shadow-xl backdrop-blur">
-            {/* <UserAudioControl size="lg" /> */}
-            <ConnectionButton
-              isConnected={isConnected}
-              isConnecting={isConnecting}
-              onClick={handleButtonClick}
-            />
+        {/* User transcript box - bottom center */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+          <div className="w-[600px]">
+            <UserTranscriptBox />
           </div>
-        </section>
+        </div>
       </div>
 
       {showExitModal && (

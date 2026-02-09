@@ -23,7 +23,9 @@ export const AgentSpeechBubble = ({ className }: AgentSpeechBubbleProps) => {
         return [...prev, data.text].slice(-6);
       }
       const updated = [...prev];
-      updated[updated.length - 1] = `${updated[updated.length - 1]} ${data.text}`.trim();
+      updated[updated.length - 1] = `${updated[updated.length - 1]} ${
+        data.text
+      }`.trim();
       return updated.slice(-6);
     });
   }, []);
@@ -43,25 +45,35 @@ export const AgentSpeechBubble = ({ className }: AgentSpeechBubbleProps) => {
 
   const currentMessage = useMemo(() => {
     if (botLines.length === 0) {
-      return "Say the vocab words in a sentence. I will guide you along the way.";
+      return null;
     }
     return botLines[botLines.length - 1];
   }, [botLines]);
 
+  if (!currentMessage) {
+    return null;
+  }
+
   return (
     <div className={className}>
-      <div className="absolute left-[-48px] top-[84px] h-[33px] w-[66px]">
+      <div className="relative">
+        {/* Triangle pointer */}
         <svg
-          className="block size-full"
-          fill="none"
-          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+          width="66"
+          height="33"
           viewBox="0 0 66 33"
+          fill="none"
+          className="absolute -left-12 top-6"
         >
           <path d="M0 33L66 0V22.6567L0 33Z" fill="white" />
         </svg>
-      </div>
-      <div className="rounded-[20px] bg-white/95 p-8 shadow-2xl backdrop-blur">
-        <p className="text-lg leading-relaxed text-slate-800">{currentMessage}</p>
+
+        <div className="rounded-3xl bg-white/90 px-8 py-6 shadow-lg backdrop-blur-sm">
+          <p className="text-xl leading-relaxed text-slate-800">
+            {currentMessage}
+          </p>
+        </div>
       </div>
     </div>
   );

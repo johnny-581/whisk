@@ -52,5 +52,6 @@ Thumbs.db
 # uv
 .uv/
 
-# Local data
-data/*.db
+# Database
+data/vocab.db
+*.db
