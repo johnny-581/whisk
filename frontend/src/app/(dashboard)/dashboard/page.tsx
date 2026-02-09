@@ -7,11 +7,30 @@ import { Button } from "@/components/ui/button";
 export default function DashboardPage() {
   const [url, setUrl] = useState("");
   const router = useRouter();
+  const extractVideoId = (url: string): string => {
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch {
+      throw new Error("Invalid YouTube URL");
+    }
+    const hostname = parsed.hostname;
+    if (hostname === "www.youtube.com" || hostname === "youtube.com") {
+      const videoId = parsed.searchParams.get("v");
+      if (videoId) return videoId;
+    }
+    if (hostname === "youtu.be") {
+      const videoId = parsed.pathname.replace("/", "");
+      if (videoId) return videoId;
+    }
+    throw new Error("Invalid YouTube URL");
+  };
 
   const handleUpload = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!url) return;
-    router.push(`/videos/upload?url=${encodeURIComponent(url)}`);
+    router.push(`/videos/${extractVideoId(url)}`);
   };
 
   return (

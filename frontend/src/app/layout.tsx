@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Reddit_Sans } from "next/font/google";
 import "./globals.css";
 
+
 const redditSans = Reddit_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
@@ -9,9 +10,8 @@ const redditSans = Reddit_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "whisk",
-  icons: { icon: "/pipecat.svg" },
-};
+    title: "whisk",
+  };
 
 export default function RootLayout({
   children,
