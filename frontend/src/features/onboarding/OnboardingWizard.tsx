@@ -9,22 +9,65 @@ import quizBank from "@/features/onboarding/quiz-bank.json";
 
 interface QuizQuestion {
   question: string;
+  questionEn?: string;
   options: string[];
+  optionsHiragana?: string[];
   correct: number;
   explanation?: string; // Optional, if your data includes it
 }
 
 const JLPT_QUIZ_BANK: Record<string, QuizQuestion[]> = quizBank;
+const JLPT_LEVELS = ["N5", "N4", "N3", "N2", "N1"] as const;
+const STEPS = {
+  WELCOME: 1,
+  PROFICIENCY: 2,
+  QUIZ_INTRO: 3,
+  QUIZ: 4,
+  DONE: 5,
+} as const;
+const QUIZ_LEVEL_RULES = [
+  "80%+ correct: level up 1 step",
+  "41–79% correct: keep your level",
+  "40% or less correct: level down 1 step",
+] as const;
+
+function adjustLevel(
+  base: string,
+  score: number,
+  total: number
+): (typeof JLPT_LEVELS)[number] {
+  const pct = total > 0 ? score / total : 0;
+  let delta = 0;
+  if (pct >= 0.8) delta = 1;
+  else if (pct <= 0.4) delta = -1;
+
+  const idx = JLPT_LEVELS.indexOf(base as (typeof JLPT_LEVELS)[number]);
+  const nextIdx = Math.min(JLPT_LEVELS.length - 1, Math.max(0, idx + delta));
+  return JLPT_LEVELS[nextIdx];
+}
+
+function applyBeginnerMode(
+  level: (typeof JLPT_LEVELS)[number],
+  enabled: boolean
+): (typeof JLPT_LEVELS)[number] {
+  if (!enabled) return level;
+  const idx = JLPT_LEVELS.indexOf(level);
+  const nextIdx = Math.min(JLPT_LEVELS.length - 1, idx + 1);
+  return JLPT_LEVELS[nextIdx];
+}
 
 export function OnboardingWizard() {
   const router = useRouter();
   const setJlptLevel = useUserStore((state) => state.setJlptLevel);
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState<(typeof STEPS)[keyof typeof STEPS]>(
+    STEPS.WELCOME
+  );
   const [currentLevel, setCurrentLevel] = useState<string | null>(null);
   const [quizScore, setQuizScore] = useState(0);
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [beginnerMode, setBeginnerMode] = useState(false);
 
   const proficiencyOptions = [
     { id: "N5", desc: "I'm new to Japanese" },
@@ -35,45 +78,54 @@ export function OnboardingWizard() {
   ];
 
   const calculateProgress = () => {
-    if (step === 1) return 0;
-    if (step === 2) return 15;
-    if (step === 2.2) return 30;
-    if (step === 2.5) return 30 + currentQuizIndex * 12;
-    if (step === 3) return 100;
+    if (step === STEPS.WELCOME) return 0;
+    if (step === STEPS.PROFICIENCY) return 15;
+    if (step === STEPS.QUIZ_INTRO) return 30;
+    if (step === STEPS.QUIZ) return 30 + currentQuizIndex * 12;
+    if (step === STEPS.DONE) return 100;
     return 0;
   };
 
   const handleComplete = () => {
-    
     router.push("/dashboard");
   };
 
   const nextStep = () => {
     console.log("Step:", step);
-    if (step === 1) setStep(2);
-    else if (step === 2) setStep(2.2);
-    else if (step === 2.2) setStep(2.5);
-    else if (step === 2.5) {
+    if (step === STEPS.WELCOME) setStep(STEPS.PROFICIENCY);
+    else if (step === STEPS.PROFICIENCY) setStep(STEPS.QUIZ_INTRO);
+    else if (step === STEPS.QUIZ_INTRO) setStep(STEPS.QUIZ);
+    else if (step === STEPS.QUIZ) {
       const questions = JLPT_QUIZ_BANK[currentLevel!];
-      if (selectedAnswer === questions[currentQuizIndex].correct) {
-        setQuizScore((prev) => prev + 1);
-        console.log("New quiz score:", quizScore);
-      }
+      const isCorrect = selectedAnswer === questions[currentQuizIndex].correct;
+      const nextScore = quizScore + (isCorrect ? 1 : 0);
 
       setSelectedAnswer(null);
 
       console.log(currentQuizIndex, "of", questions.length);
 
       if (currentQuizIndex < questions.length - 1) {
+        setQuizScore(nextScore);
         setCurrentQuizIndex((prev) => prev + 1);
       } else {
         if (currentLevel) {
-          const levelInt = parseInt(currentLevel.replace("N", ""), 10);
+          const finalLevel = adjustLevel(
+            currentLevel,
+            nextScore,
+            questions.length
+          );
+          const adjustedForBeginner = applyBeginnerMode(
+            finalLevel,
+            beginnerMode
+          );
+          setCurrentLevel(adjustedForBeginner);
+          const levelInt = parseInt(adjustedForBeginner.replace("N", ""), 10);
           setJlptLevel(levelInt);
+          console.log("Proficiency Level:", adjustedForBeginner);
         }
-        console.log("Proficiency Level:", currentLevel);
-        console.log("Quiz Score:", quizScore);
-        setStep(3);
+        console.log("Quiz Score:", nextScore);
+        setQuizScore(nextScore);
+        setStep(STEPS.DONE);
       }
     } else {
       handleComplete();
@@ -103,7 +155,9 @@ export function OnboardingWizard() {
         <div
           className={cn(
             "w-full max-w-xl py-4 flex flex-col",
-            step === 1 || step === 2.2 || step === 3
+            step === STEPS.WELCOME ||
+              step === STEPS.QUIZ_INTRO ||
+              step === STEPS.DONE
               ? "justify-center items-center text-center"
               : "justify-start"
           )}
@@ -111,12 +165,14 @@ export function OnboardingWizard() {
           <div
             className={cn(
               "mb-8 min-h-[120px] flex flex-col w-full",
-              step === 1 || step === 2.2 || step === 3
+              step === STEPS.WELCOME ||
+                step === STEPS.QUIZ_INTRO ||
+                step === STEPS.DONE
                 ? "items-center text-center"
                 : "justify-center text-left"
             )}
           >
-            {step === 1 && (
+            {step === STEPS.WELCOME && (
               <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <h1 className="text-4xl font-black text-emerald-900 leading-tight">
                   Welcome to <br />
@@ -128,13 +184,13 @@ export function OnboardingWizard() {
               </div>
             )}
 
-            {step === 2 && (
+            {step === STEPS.PROFICIENCY && (
               <h3 className="text-2xl font-bold text-emerald-950 animate-in fade-in duration-500">
                 How much Japanese do you know?
               </h3>
             )}
 
-            {step === 2.2 && (
+            {step === STEPS.QUIZ_INTRO && (
               <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <h3 className="text-3xl font-bold text-emerald-900">
                   Let&apos;s find the best place to start.
@@ -143,21 +199,56 @@ export function OnboardingWizard() {
                   We&apos;re going to take you through a short quiz to confirm
                   your level.
                 </p>
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-left shadow-sm">
+                  <p className="text-emerald-900 font-bold text-sm uppercase tracking-wider">
+                    Beginner Mode
+                  </p>
+                  <p className="mt-1 text-sm text-emerald-800/80">
+                    When on, questions are shown in English and options show
+                    hiragana. Your final level is adjusted down by 1 step.
+                  </p>
+                  <button
+                    type="button"
+                    aria-pressed={beginnerMode}
+                    onClick={() => setBeginnerMode((prev) => !prev)}
+                    className={cn(
+                      "mt-3 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-bold transition-colors",
+                      beginnerMode
+                        ? "bg-emerald-600 border-emerald-600 text-white"
+                        : "bg-white border-emerald-200 text-emerald-900"
+                    )}
+                  >
+                    {beginnerMode ? "Beginner Mode: ON" : "Beginner Mode: OFF"}
+                  </button>
+                </div>
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-left shadow-sm">
+                  <p className="text-emerald-900 font-bold text-sm uppercase tracking-wider">
+                    How we adjust your level
+                  </p>
+                  <ul className="mt-2 text-sm text-emerald-800/80 space-y-1">
+                    {QUIZ_LEVEL_RULES.map((rule) => (
+                      <li key={rule}>{rule}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             )}
 
-            {step === 2.5 && currentLevel && (
+            {step === STEPS.QUIZ && currentLevel && (
               <div className="space-y-2 animate-in fade-in duration-500 w-full">
                 <p className="text-emerald-600 font-bold text-sm uppercase tracking-wider">
                   Question {currentQuizIndex + 1}/5
                 </p>
                 <h3 className="text-2xl font-bold text-emerald-950 leading-tight">
-                  {JLPT_QUIZ_BANK[currentLevel][currentQuizIndex].question}
+                  {beginnerMode &&
+                  JLPT_QUIZ_BANK[currentLevel][currentQuizIndex].questionEn
+                    ? JLPT_QUIZ_BANK[currentLevel][currentQuizIndex].questionEn
+                    : JLPT_QUIZ_BANK[currentLevel][currentQuizIndex].question}
                 </h3>
               </div>
             )}
 
-            {step === 3 && (
+            {step === STEPS.DONE && (
               <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <h3 className="text-4xl font-black text-emerald-900 leading-tight">
                   All set!
@@ -166,12 +257,22 @@ export function OnboardingWizard() {
                   Based on your answers, you are {currentLevel} level! Your
                   personalized experience is ready.
                 </p>
+                {/* <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-left shadow-sm">
+                  <p className="text-emerald-900 font-bold text-sm uppercase tracking-wider">
+                    Level adjustment rules
+                  </p>
+                  <ul className="mt-2 text-sm text-emerald-800/80 space-y-1">
+                    {QUIZ_LEVEL_RULES.map((rule) => (
+                      <li key={rule}>{rule}</li>
+                    ))}
+                  </ul>
+                </div> */}
               </div>
             )}
           </div>
 
           <div className="space-y-3 pb-32 w-full">
-            {step === 2 &&
+            {step === STEPS.PROFICIENCY &&
               proficiencyOptions.map((opt) => (
                 <button
                   key={opt.id}
@@ -187,7 +288,7 @@ export function OnboardingWizard() {
                 </button>
               ))}
 
-            {step === 2.5 &&
+            {step === STEPS.QUIZ &&
               currentLevel &&
               JLPT_QUIZ_BANK[currentLevel][currentQuizIndex].options.map(
                 (opt, idx) => (
@@ -201,7 +302,26 @@ export function OnboardingWizard() {
                         : "bg-white border-white text-emerald-900 hover:border-emerald-100"
                     )}
                   >
-                    {opt}
+                    <div>{opt}</div>
+                    {beginnerMode &&
+                      JLPT_QUIZ_BANK[currentLevel][currentQuizIndex]
+                        .optionsHiragana &&
+                      JLPT_QUIZ_BANK[currentLevel][currentQuizIndex]
+                        .optionsHiragana![idx] && (
+                        <div
+                          className={cn(
+                            "mt-1 text-sm font-semibold",
+                            selectedAnswer === idx
+                              ? "text-emerald-100/90"
+                              : "text-emerald-700/80"
+                          )}
+                        >
+                          {
+                            JLPT_QUIZ_BANK[currentLevel][currentQuizIndex]
+                              .optionsHiragana![idx]
+                          }
+                        </div>
+                      )}
                   </button>
                 )
               )}
@@ -214,18 +334,18 @@ export function OnboardingWizard() {
           <Button
             onClick={nextStep}
             disabled={
-              (step === 2 && !currentLevel) ||
-              (step === 2.5 && selectedAnswer === null)
+              (step === STEPS.PROFICIENCY && !currentLevel) ||
+              (step === STEPS.QUIZ && selectedAnswer === null)
             }
             className={cn(
               "w-full h-16 text-lg font-bold rounded-2xl transition-all duration-300 shadow-xl",
-              (step === 2 && !currentLevel) ||
-                (step === 2.5 && selectedAnswer === null)
+              (step === STEPS.PROFICIENCY && !currentLevel) ||
+                (step === STEPS.QUIZ && selectedAnswer === null)
                 ? "bg-emerald-100 text-emerald-300 cursor-not-allowed"
                 : "bg-emerald-600 hover:bg-emerald-700 text-white active:scale-[0.98]"
             )}
           >
-            {step === 3 ? "Start Learning" : "Continue"}
+            {step === STEPS.DONE ? "Start Learning" : "Continue"}
           </Button>
         </div>
       </footer>
