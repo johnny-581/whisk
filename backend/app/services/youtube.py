@@ -1,7 +1,23 @@
-from youtube_transcript_api import YouTubeTranscriptApi
 from urllib.parse import urlparse, parse_qs
 
-ytt_api = YouTubeTranscriptApi()
+from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.proxies import GenericProxyConfig
+
+from app.core.config import settings
+
+
+def _make_ytt_api():
+    """Build YouTubeTranscriptApi with optional proxy (e.g. Bright Data)."""
+    proxy_config = None
+    if settings.PROXY_URL:
+        proxy_config = GenericProxyConfig(
+            http_url=settings.PROXY_URL,
+            https_url=settings.PROXY_URL,
+        )
+    return YouTubeTranscriptApi(proxy_config=proxy_config)
+
+
+ytt_api = _make_ytt_api()
 
 def format_fetched_transcript(fetched):
         lines = []

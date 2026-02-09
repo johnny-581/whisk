@@ -42,6 +42,10 @@ class Settings:
     # VAD Configuration
     VAD_STOP_SECS: float = 0.2
     
+    # Proxy  for YouTube transcript API when deployed (e.g. Bright Data)
+    # Format: http://username:password@host:port
+    PROXY_URL: str = os.getenv("PROXY_URL", "")
+
     # Paths
     PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent.parent.parent
     DATABASE_PATH: Path = PROJECT_ROOT / "backend" / "data" / "vocab.db"
