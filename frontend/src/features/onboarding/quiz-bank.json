@@ -38,7 +38,7 @@
   ],
   "N4": [
     {
-      "question": "昨日は、風が つよかったです。",
+      "question": "昨日は、風が（　）です。",
       "questionEn": "Yesterday, the wind was strong.",
       "options": [
         "づよかったです",
@@ -62,7 +62,7 @@
       "correct": 0
     },
     {
-      "question": "この道を まっすぐ 行ってください。",
+      "question": "この道を まっすぐ いってください。",
       "questionEn": "Please go straight down this road.",
       "options": ["歩って", "通って", "行って", "走って"],
       "optionsHiragana": ["あゆって", "とおって", "いって", "はしって"],
@@ -71,7 +71,7 @@
     {
       "question": "（　）の辞書は、とても役に立ちます。",
       "questionEn": "This dictionary is very useful.",
-      "options": ["この", "これ", "ここ", "こちら"],
+      "options": ["こ", "これ", "ここ", "こちら"],
       "optionsHiragana": ["この", "これ", "ここ", "こちら"],
       "correct": 0
     },
@@ -80,8 +80,8 @@
       "questionEn": "I didn't go anywhere yesterday.",
       "options": [
         "行きませんでした",
+        "行きます",
         "行きました",
-        "行かなかったです",
         "行ったです"
       ],
       "optionsHiragana": [
