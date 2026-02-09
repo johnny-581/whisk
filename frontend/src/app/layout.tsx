@@ -9,7 +9,7 @@ const redditSans = Reddit_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "LearnJapanese",
+  title: "whisk",
   icons: { icon: "/pipecat.svg" },
 };
 
