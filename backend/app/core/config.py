@@ -19,6 +19,7 @@ class Settings:
     # API Keys
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
     DAILY_API_KEY: str = os.getenv("DAILY_API_KEY", "")
+    APIFY_API_TOKEN: str = os.getenv("APIFY_API_TOKEN", "")
     
     # Daily.co Configuration
     DAILY_API_URL: str = "https://api.daily.co/v1"
@@ -41,10 +42,6 @@ class Settings:
     
     # VAD Configuration
     VAD_STOP_SECS: float = 0.2
-    
-    # Proxy  for YouTube transcript API when deployed (e.g. Bright Data)
-    # Format: http://username:password@host:port
-    PROXY_URL: str = os.getenv("PROXY_URL", "")
 
     # Paths
     PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent.parent.parent
@@ -64,6 +61,8 @@ class Settings:
             missing_vars.append("GOOGLE_API_KEY")
         if not cls.DAILY_API_KEY:
             missing_vars.append("DAILY_API_KEY")
+        if not cls.APIFY_API_TOKEN:
+            missing_vars.append("APIFY_API_TOKEN")
         
         if missing_vars:
             raise ValueError(

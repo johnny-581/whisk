@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.schemas.video import Video, VideoAnalysisRequest
-from app.services.youtube import ytt_api, format_fetched_transcript, extract_video_id
+from app.services.youtube import get_video_transcript, format_transcript, extract_video_id
 from google import genai
 from app.core.config import settings
 from app.core.prompts import get_video_analysis_prompt
@@ -18,8 +18,10 @@ async def video_analysis(request: VideoAnalysisRequest):
 
     video_id = extract_video_id(request.video_url)
     print(f"Extracting transcript - Video ID: {video_id}")
-    transcript = ytt_api.fetch(video_id)
-    transcript = format_fetched_transcript(transcript)
+    
+    # Fetch transcript using Apify (default language is Japanese)
+    transcript_data = get_video_transcript(request.video_url, target_language="ja")
+    transcript = format_transcript(transcript_data)
     print(f"Transcript Extracted!")
     
     response = client.models.generate_content(

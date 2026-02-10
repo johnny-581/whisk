@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Simple chatbot built with Pipecat and FastAPI"
 requires-python = ">=3.10"
 dependencies = [
+    "apify-client>=1.7.0",
     "fastapi>=0.109.0",
     "httpx>=0.26.0",
     "loguru>=0.7.0",
@@ -12,7 +13,6 @@ dependencies = [
     "pydantic>=2.11.10",
     "python-dotenv>=1.0.0",
     "uvicorn>=0.27.0",
-    "youtube-transcript-api>=1.2.4",
 ]
 
 [dependency-groups]
